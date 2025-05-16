@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter;
 
 public class Discount {
     @CsvBindByName(column = "product_id")
-    private String id;
+    private String productId;
     @CsvBindByName(column = "product_name")
     private String name;
     @CsvBindByName(column = "brand")
@@ -31,8 +31,8 @@ public class Discount {
 
     }
 
-    public Discount(String id, String name, String brand, double quantity, String unit, String category, String fromDate, String toDate, int discount) {
-        this.id = id;
+    public Discount(String productId, String name, String brand, double quantity, String unit, String category, String fromDate, String toDate, int discount) {
+        this.productId = productId;
         this.name = name;
         this.brand = brand;
         this.quantity = quantity;
@@ -43,12 +43,12 @@ public class Discount {
         this.discount = discount;
     }
 
-    public String getId() {
-        return id;
+    public String getProductId() {
+        return productId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setProductId(String id) {
+        this.productId = id;
     }
 
     public String getName() {
