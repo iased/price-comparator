@@ -2,6 +2,8 @@ package com.accesa.price_comparator.domain;
 
 import com.opencsv.bean.CsvBindByName;
 
+import java.time.LocalDate;
+
 public class Product {
     @CsvBindByName(column = "product_id")
     private String id;
@@ -20,11 +22,14 @@ public class Product {
     @CsvBindByName(column = "currency")
     private String currency;
 
+    private String store;
+    private LocalDate date;
+
     public Product(){
 
     }
 
-    public Product(String id, String name, String category, String brand, double quantity, String unit, double price, String currency)
+    public Product(String id, String name, String category, String brand, double quantity, String unit, double price, String currency, String store, LocalDate date)
     {
         this.id = id;
         this.name = name;
@@ -34,6 +39,8 @@ public class Product {
         this.unit = unit;
         this.price = price;
         this.currency = currency;
+        this.store = store;
+        this.date = date;
     }
 
     public void setId(String id){
@@ -98,6 +105,22 @@ public class Product {
 
     public String getCurrency(){
         return this.currency;
+    }
+
+    public void setStore(String store){
+        this.store = store;
+    }
+
+    public String getStore(){
+        return this.store;
+    }
+
+    public void setDate(LocalDate date){
+        this.date = date;
+    }
+
+    public LocalDate getDate(){
+        return this.date;
     }
 }
 
