@@ -11,14 +11,18 @@ public class Product {
     private String category;
     @CsvBindByName(column = "brand")
     private String brand;
-    @CsvBindByName(column = "product_quantity")
+    @CsvBindByName(column = "package_quantity")
     private double quantity;
-    @CsvBindByName(column = "product_unit")
+    @CsvBindByName(column = "package_unit")
     private String unit;
     @CsvBindByName(column = "price")
     private double price;
     @CsvBindByName(column = "currency")
     private String currency;
+
+    public Product(){
+
+    }
 
     public Product(String id, String name, String category, String brand, double quantity, String unit, double price, String currency)
     {
