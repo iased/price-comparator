@@ -1,55 +1,13 @@
-# Price Comparator - Market
+## Price Comparator - Market
 
- Backend application for comparing grocery prices across multiple supermarket chains. 
-The system allows users to track price changes, find the best deals, and manage their shopping lists effectively.
-
-## Planned features
-
-* **Daily Shopping Basket Monitoring** 
-Help users split their basket into shopping lists that optimise for cost savings
-
-* **Best Discounts**
-List products with the highest current percentage discounts across all tracked
-stores
-
-* **New Discounts**
-List discounts that have been newly added (e.g., within the last 24 hours)
-
-* **Dynamic Price History Graphs**
-Provide data points that would allow a frontend to calculate and display price
-trends over time for individual products.
-This data should be filterable by store, product category, or brand.
-
-* **Product Substitutes & Recommendations**
-Highlight "value per unit" (e.g., price per kg, price per liter) to help identify the
-best buys, even if the pack size differs.
-
-* **Custom Price Alert**
-Allow users to set a target price for a product. 
-The system should be able to identify when a product's price drops to or below that target.
+Backend application for comparing grocery prices across multiple supermarket chains. 
+The system allows users to track price changes, find the best deals, and manage their shopping lists effectively
 
 ## Tech stack
 * Java 21.0.6
 * Spring Boot 3.4.5
 * Maven 3.9.9
 * CSV files for data
-
-## Project structure overview
-- src/
-	- main/
-		- java/
-			- com.accesa.price_comparator/
-				- controller
-				- domain
-				- repository
-				- service
-				- PriceComparatorApplication.java
-		- resources/ 
-			- application.properties
-			- csv/
-				- storename_date.csv (e.g., lidl_2025-05-08.csv,kaufland_2025-05-08.csv)
-- pom.xml
-- README.md
 
 ## Setup instructions
 
@@ -73,5 +31,72 @@ Note: Sample CSV files are already included in the repository. If missing ensure
 **5. Run the application**
 `mvn spring-boot:run`
 Alternatively, run PriceComparatorApplication.java directly from your IDE.
+
+## Project structure overview
+- src/
+	- main/
+		- java/
+			- com.accesa.price_comparator/
+				- controller
+				- domain
+				- dto
+				- model
+				- repository
+				- service
+				- PriceComparatorApplication.java
+		- resources/ 
+			- application.properties
+			- csv/
+				- storename_date.csv (e.g., lidl_2025-05-08.csv, kaufland_2025-05-08.csv)
+				- storename_discounts_date.csv (e.g., lidl_discounts_2025-05-08.csv, kaufland_discounts_2025-05-08.csv)
+
+- pom.xml
+- README.md
+
+## Core functionality
+This application parses product and discount data from CSV files and links them using in-memory maps based on a composite key of productId and store. It exposes RESTful endpoints that allow retrieval of product information and associated discounts. The data model separates products and discounts for modularity and scalability, while a central service efficiently binds them together for query operations.
+
+## API Endpoints
+* **Get all products**
+`GET /api/products`  
+Returns a list of all available products across all stores.
+
+* **Get all discounts**
+`GET /api/discounts`  
+Returns a list of all discounts available across all stores.
+
+* **Get Product details**
+`GET /api/product-discount/{store}/{productId}`
+Returns the full product information for the specified store and productId.
+
+* **Get all discounts for a product**
+`GET /api/product-discount/{store}/{productId}/discounts`
+Returns **all available discounts** for the specified product in the given store, regardless of date or time.
+
+* **Get best discounts**
+`GET /api/product-discount/best-discounts`
+Returns a list of products with the **highest percentage discounts** currently available across all tracked stores, **along with their corresponding best discount**.
+
+## Upcoming features
+
+* **Daily Shopping Basket Monitoring** 
+Help users split their basket into shopping lists that optimise for cost savings
+
+* **New Discounts**
+List discounts that have been newly added (e.g., within the last 24 hours)
+
+* **Dynamic Price History Graphs**
+Provide data points that would allow a frontend to calculate and display price
+trends over time for individual products.
+This data should be filterable by store, product category, or brand.
+
+* **Product Substitutes & Recommendations**
+Highlight "value per unit" (e.g., price per kg, price per liter) to help identify the
+best buys, even if the pack size differs.
+
+* **Custom Price Alert**
+Allow users to set a target price for a product. 
+The system should be able to identify when a product's price drops to or below that target.
+
 
 
