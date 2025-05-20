@@ -2,6 +2,7 @@ package com.accesa.price_comparator.controller;
 
 import com.accesa.price_comparator.domain.Discount;
 import com.accesa.price_comparator.domain.Product;
+import com.accesa.price_comparator.dto.ProductBestDiscount;
 import com.accesa.price_comparator.service.ProductDiscountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -41,4 +42,12 @@ public class ProductDiscountController {
             @PathVariable String productId) {
         return productDiscountService.getDiscounts(productId, store);
     }
+
+    @GetMapping("/best-discounts")
+    public ResponseEntity<List<ProductBestDiscount>> getBestDiscounts() {
+        List<ProductBestDiscount> productBestDiscounts = productDiscountService.getProductsWithBestDiscounts();
+        System.out.println("Best discounts count: " + productBestDiscounts.size());
+        return ResponseEntity.ok(productBestDiscounts);
+    }
+
 }
