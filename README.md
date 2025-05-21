@@ -1,7 +1,7 @@
 # Price Comparator - Market
 
 Backend application for comparing grocery prices across multiple supermarket chains. 
-The system allows users to track price changes, find the best deals, and manage their shopping lists effectively
+The system allows users to track price changes, find the best deals, and manage their shopping lists effectively.
 
 ## Tech stack
 * Java 21.0.6
@@ -21,11 +21,11 @@ The system allows users to track price changes, find the best deals, and manage 
 Make sure you have Java 21 and Maven installed. You can check Java and Maven versions by running:\
 `java -version`\
 `mvn -v`\
-If they are not installed, install them from their official websites
+If they are not installed, install them from their official websites.
 
 ### **3. Import the project into your IDE**
 
-You can import the project into your favorite IDE (e.g., IntelliJ IDEA, Eclipse, Visual Studio Code) as a Maven project
+You can import the project into your favorite IDE (e.g., IntelliJ IDEA, Eclipse, Visual Studio Code) as a Maven project.
 
 ### **4. Add CSV data files**
 Place CSV files inside the following folder:\
@@ -58,7 +58,14 @@ Alternatively, run PriceComparatorApplication.java directly from your IDE.
 - README.md
 
 ## Core functionality
-This application parses product and discount data from CSV files and links them using in-memory maps based on a composite key of productId and store. It exposes RESTful endpoints that allow retrieval of product information, all discounts, best discounts and newly added discounts. The data model separates products and discounts for modularity and scalability, while a central service efficiently binds them together for query operations.
+This application parses product and discount data from CSV files and links them using in-memory maps based on a composite key of `productId` and `store`. It exposes a set of RESTful API endpoints for:
+* Retrieving product information and associated discounts
+* Getting the best currently available discounts
+* Identifying newly added discounts
+* Viewing historical price trends for individual products
+
+The data model separates products and discounts for modularity and scalability, while a central service efficiently binds them together for query operations.\
+The price history functionality provides timestamped price data (including discounted prices) per product, allowing the frontend to visualize trends over time, filterable by store.
 
 ## API Endpoints
 ### **Get all products**
@@ -71,7 +78,7 @@ Returns a list of all available products across all stores.
 Returns a list of all discounts available across all stores.
 
 
-### **Get Product details**
+### **Get product details**
 `GET /api/market/{store}/{productId}`\
 Returns the full product information for the specified store and productId.
 
@@ -90,16 +97,18 @@ Returns a list of products with the **highest percentage discounts** currently a
 `GET /api/market/new-discounts`\
 Returns a list of discounts that have been newly added (e.g., within the last 24 hours).
 
+
+### **Get price history points for a product**
+`GET /api/market/{productId}/price-history`\
+Returns the price history for a specific product across all stores.
+
+Optional query parameter `store` can be used to filter by a specific store:\
+`GET /api/market/{productId}/price-history?store={store}`
+
 ## Upcoming features
 
 * **Daily Shopping Basket Monitoring**\
 Help users split their basket into shopping lists that optimise for cost savings
-
-
-* **Dynamic Price History Graphs**\
-Provide data points that would allow a frontend to calculate and display price
-trends over time for individual products.
-This data should be filterable by store, product category, or brand.
 
 
 * **Product Substitutes & Recommendations**\
