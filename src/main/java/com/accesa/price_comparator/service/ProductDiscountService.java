@@ -2,10 +2,13 @@ package com.accesa.price_comparator.service;
 
 import com.accesa.price_comparator.domain.Discount;
 import com.accesa.price_comparator.domain.Product;
+import com.accesa.price_comparator.dto.PriceHistoryPoint;
 import com.accesa.price_comparator.dto.ProductBestDiscount;
 import com.accesa.price_comparator.model.ProductKey;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,9 +47,6 @@ public class ProductDiscountService {
     }
 
     public List<ProductBestDiscount> getProductsWithBestDiscounts() {
-        System.out.println("Discount map size: " + discountMap.size());
-        System.out.println("Product map size: " + productMap.size());
-
         LocalDate today = LocalDate.now();
 
         // map key: productId
@@ -112,5 +112,63 @@ public class ProductDiscountService {
         }
 
         return newDiscounts;
+    }
+
+    private double calculateDiscountedPrice(double price, int discountedPrice) {
+        double discounted = price - (price * discountedPrice / 100);
+        return new BigDecimal(discounted)
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
+    }
+
+    public List<PriceHistoryPoint> getPriceHistoryPoints(String productId){
+        List<PriceHistoryPoint> historyPoints = new ArrayList<>();
+
+        for(Map.Entry<ProductKey, Product> entry : productMap.entrySet()) {
+            ProductKey key = entry.getKey();
+            Product product = entry.getValue();
+
+            if (!product.getId().equals(productId)) {
+                continue;
+            }
+
+            List<Discount> discounts = discountMap.get(key);
+
+            if (discounts == null || discounts.isEmpty()) {
+                historyPoints.add(new PriceHistoryPoint(
+                        product.getId(),
+                        product.getStore(),
+                        product.getDate(),
+                        product.getDate(),
+                        product.getPrice(),
+                        product.getPrice())
+                );
+            } else {
+                for (Discount discount : discounts) {
+                    LocalDate fromDate = LocalDate.parse(discount.getFromDate());
+                    LocalDate toDate = LocalDate.parse(discount.getToDate());
+                    double discountedPrice = calculateDiscountedPrice(product.getPrice(), discount.getDiscount());
+
+                    PriceHistoryPoint point = new PriceHistoryPoint(
+                            product.getId(),
+                            product.getStore(),
+                            fromDate,
+                            toDate,
+                            product.getPrice(),
+                            discountedPrice
+                    );
+
+                    historyPoints.add(point);
+                }
+            }
+        }
+
+        return historyPoints;
+    }
+
+    public List<PriceHistoryPoint> getPriceHistoryPointsByStore(String productId, String store){
+        return getPriceHistoryPoints(productId).stream()
+                .filter(p -> store == null || p.getStore().equalsIgnoreCase(store))
+                .toList();
     }
 }

@@ -2,14 +2,12 @@ package com.accesa.price_comparator.controller;
 
 import com.accesa.price_comparator.domain.Discount;
 import com.accesa.price_comparator.domain.Product;
+import com.accesa.price_comparator.dto.PriceHistoryPoint;
 import com.accesa.price_comparator.dto.ProductBestDiscount;
 import com.accesa.price_comparator.service.ProductDiscountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -53,5 +51,16 @@ public class ProductDiscountController {
     @GetMapping("/new-discounts")
     public List<Discount> getNewDiscounts() {
         return productDiscountService.getNewDiscounts();
+    }
+
+    @GetMapping("/{productId}/price-history")
+    public List<PriceHistoryPoint> getPriceHistoryPoints(
+            @PathVariable String productId,
+            @RequestParam(required = false) String store) {
+        if (store == null) {
+            return productDiscountService.getPriceHistoryPoints(productId);
+        } else {
+            return productDiscountService.getPriceHistoryPointsByStore(productId, store);
+        }
     }
 }
