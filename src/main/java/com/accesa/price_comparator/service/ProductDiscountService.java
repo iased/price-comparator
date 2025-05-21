@@ -94,4 +94,23 @@ public class ProductDiscountService {
 
         return new ArrayList<>(bestDiscountMap.values());
     }
+
+    public List<Discount> getNewDiscounts(){
+        LocalDate today = LocalDate.now();
+        LocalDate yesterday = today.minusDays(1);
+
+        List<Discount> newDiscounts = new ArrayList<>();
+
+        for(List<Discount> discounts : discountMap.values()) {
+            for (Discount discount : discounts) {
+                LocalDate fromDate = LocalDate.parse(discount.getFromDate());
+
+                if(fromDate.isEqual(yesterday) || fromDate.isEqual(today)){
+                    newDiscounts.add(discount);
+                }
+            }
+        }
+
+        return newDiscounts;
+    }
 }
