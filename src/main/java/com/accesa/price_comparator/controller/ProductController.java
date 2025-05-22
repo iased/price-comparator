@@ -2,9 +2,7 @@ package com.accesa.price_comparator.controller;
 
 import com.accesa.price_comparator.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.accesa.price_comparator.domain.Product;
 import java.util.List;
 
@@ -21,5 +19,16 @@ public class ProductController {
     @GetMapping
     public List<Product> getAllProducts() {
         return productService.getAllProducts();
+    }
+
+    @GetMapping("/{name}/best-buy")
+    public List<Product> getBestBuyProducts(
+            @PathVariable String name,
+            @RequestParam(required = false) String brand) {
+        if (brand == null) {
+            return productService.getBestBuyProducts(name);
+        } else {
+            return productService.getBestBuyProducts(name, brand);
+        }
     }
 }

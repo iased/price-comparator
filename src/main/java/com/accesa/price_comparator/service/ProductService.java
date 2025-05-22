@@ -9,32 +9,13 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.text.Normalizer;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class ProductService {
-    /*
-    public List<Product> getAllProducts() {
-        try {
-            InputStream inputStream = getClass().getClassLoader().getResourceAsStream("csv/lidl_2025-05-08.csv");
-            if (inputStream == null)
-                throw new RuntimeException("CSV file not found");
-            InputStreamReader reader = new InputStreamReader(inputStream);
-
-            return new CsvToBeanBuilder<Product>(reader)
-                .withType(Product.class)
-                .withSeparator(';')
-                .build()
-                .parse();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Collections.emptyList();
-        }
-    } */
 
     public List<Product> getAllProducts() {
         List<Product> allProducts = new ArrayList<>();
@@ -87,5 +68,61 @@ public class ProductService {
         }
 
         return allProducts;
+    }
+
+    private String normalizeString(String input) {
+        return Normalizer.normalize(input, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")  // remove diacritics
+                .toLowerCase()
+                .trim();
+    }
+
+    public List<Product> getBestBuyProducts(String name){
+        List<Product> products = getAllProducts();
+        List<Product> bestBuys = new ArrayList<>();
+        double lowestPricePerUnit = Double.MAX_VALUE;
+
+        String normalizedName = normalizeString(name);
+
+        for(Product product : products){
+            product.calculatePricePerUnit();
+            String prodName = normalizeString(product.getName());
+
+            if(prodName.contains(normalizedName)){
+                if(product.getPricePerUnit() < lowestPricePerUnit){
+                    bestBuys.clear();
+                    bestBuys.add(product);
+                    lowestPricePerUnit = product.getPricePerUnit();
+                } else if(product.getPricePerUnit() == lowestPricePerUnit){
+                    bestBuys.add(product);
+                }
+            }
+        }
+        return bestBuys;
+    }
+
+    public List<Product> getBestBuyProducts(String name, String brand){
+        List<Product> products = getAllProducts();
+        List<Product> bestBuys = new ArrayList<>();
+        double lowestPricePerUnit = Double.MAX_VALUE;
+        String normalizedName = normalizeString(name);
+        String normalizedBrand = normalizeString(brand);
+
+        for(Product product : products){
+            product.calculatePricePerUnit();
+            String prodName = normalizeString(product.getName());
+            String brandName = normalizeString(product.getBrand());
+
+            if(prodName.contains(normalizedName) && brandName.contains(normalizedBrand)){
+                if(product.getPricePerUnit() < lowestPricePerUnit){
+                    bestBuys.clear();
+                    bestBuys.add(product);
+                    lowestPricePerUnit = product.getPricePerUnit();
+                } else if(product.getPricePerUnit() == lowestPricePerUnit){
+                    bestBuys.add(product);
+                }
+            }
+        }
+        return bestBuys;
     }
 }

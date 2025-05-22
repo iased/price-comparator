@@ -25,11 +25,14 @@ public class Product {
     private String store;
     private LocalDate date;
 
+    private double pricePerUnit;
+
     public Product(){
 
     }
 
-    public Product(String id, String name, String category, String brand, double quantity, String unit, double price, String currency, String store, LocalDate date)
+    public Product(String id, String name, String category, String brand, double quantity, String unit, double price,
+                   String currency, String store, LocalDate date, double pricePerUnit)
     {
         this.id = id;
         this.name = name;
@@ -41,6 +44,7 @@ public class Product {
         this.currency = currency;
         this.store = store;
         this.date = date;
+        this.pricePerUnit = pricePerUnit;
     }
 
     public void setId(String id){
@@ -121,6 +125,33 @@ public class Product {
 
     public LocalDate getDate(){
         return this.date;
+    }
+
+    public double getPricePerUnit() {
+        return this.pricePerUnit;
+    }
+
+    public void setPricePerUnit(double pricePerUnit) {
+        this.pricePerUnit = pricePerUnit;
+    }
+
+    private double switchToStandardUnit(double quantity, String unit) {
+        switch (unit) {
+            case "ml":
+                return quantity / 1000;
+            case "l":
+                return quantity;
+            case "g":
+                return quantity / 1000;
+            case "kg":
+                return quantity;
+            default:
+                return quantity;
+        }
+    }
+
+    public void calculatePricePerUnit() {
+        this.pricePerUnit = this.price / switchToStandardUnit(this.quantity, this.unit);
     }
 }
 
