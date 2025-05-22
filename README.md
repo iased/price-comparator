@@ -63,9 +63,13 @@ This application parses product and discount data from CSV files and links them 
 * Getting the best currently available discounts
 * Identifying newly added discounts
 * Viewing historical price trends for individual products
-
-The data model separates products and discounts for modularity and scalability, while a central service efficiently binds them together for query operations.\
-The price history functionality provides timestamped price data (including discounted prices) per product, allowing the frontend to visualize trends over time, filterable by store.
+  * Provides timestamped price data (including discounted prices) per product
+  * Allows filtering by store
+* Enabling users to find the best buy products by name (with optional brand filtering) to help compare prices effectively regardless of pack size
+  * Highlights "value per unit" (e.g., price per kg, price per liter)
+  * Allows filtering by product brand
+  
+The data model separates products and discounts for modularity and scalability, while a central service efficiently binds them together for query operations.
 
 ## API Endpoints
 ### **Get all products**
@@ -105,15 +109,17 @@ Returns the price history for a specific product across all stores.
 Optional query parameter `store` can be used to filter by a specific store:\
 `GET /api/market/{productId}/price-history?store={store}`
 
+### **Get best-buy recommendation for a product**
+`GET /api/products/{name}/best-buy`\
+Returns the product with the best price per unit for the given product name, across all brands.
+
+Optional query parameter `brand` can be used to filter by a specific product brand:\
+`GET /api/products/{name}/best-buy?brand={brand}`
+
 ## Upcoming features
 
 * **Daily Shopping Basket Monitoring**\
 Help users split their basket into shopping lists that optimise for cost savings
-
-
-* **Product Substitutes & Recommendations**\
-Highlight "value per unit" (e.g., price per kg, price per liter) to help identify the
-best buys, even if the pack size differs.
 
 
 * **Custom Price Alert**
