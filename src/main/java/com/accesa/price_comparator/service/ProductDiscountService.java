@@ -10,14 +10,11 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class ProductDiscountService {
-    private final Map<ProductKey, Product> productMap = new HashMap<>();
+    private final Map<ProductKey, List<Product>> productSnapshotsMap = new HashMap<>();
     private final Map<ProductKey, List<Discount>> discountMap = new HashMap<>();
 
     public ProductDiscountService(ProductService productService, DiscountService discountService) {
@@ -26,7 +23,10 @@ public class ProductDiscountService {
 
         for (Product product : products) {
             ProductKey productKey = new ProductKey(product.getId(), product.getStore());
-            productMap.put(productKey, product);
+            if (!productSnapshotsMap.containsKey(productKey)) {
+                productSnapshotsMap.put(productKey, new ArrayList<>());
+            }
+            productSnapshotsMap.get(productKey).add(product);
         }
 
         for (Discount discount : discounts) {
@@ -36,9 +36,57 @@ public class ProductDiscountService {
         }
     }
 
-    public Product getProduct(String productId, String store) {
-        ProductKey productKey = new ProductKey(productId, store);
-        return productMap.get(productKey);
+    public List<Product> getProducts(String productId, String store) {
+        ProductKey key = new ProductKey(productId, store);
+        return productSnapshotsMap.getOrDefault(key, Collections.emptyList());
+    }
+
+    public Product getLatestProductSnapshot(String productId, String store) {
+        List<Product> snapshots = getProducts(productId, store);
+        if (snapshots == null || snapshots.isEmpty()) {
+            return null;
+        }
+
+        Product latestProduct = null;
+        for (Product product : snapshots) {
+            if (latestProduct == null || product.getDate().isAfter(latestProduct.getDate())) {
+                latestProduct = product;
+            }
+        }
+        return latestProduct;
+    }
+
+    public Product getLatestProductSnapshot(String productId) {
+        Product latestProduct = null;
+
+        for (Map.Entry<ProductKey, List<Product>> entry : productSnapshotsMap.entrySet()) {
+            if (entry.getKey().productId().equals(productId)) {
+                List<Product> snapshots = entry.getValue();
+                for (Product product : snapshots) {
+                    if (latestProduct == null || product.getDate().isAfter(latestProduct.getDate())) {
+                        latestProduct = product;
+                    }
+                }
+            }
+        }
+
+        return latestProduct;
+    }
+
+
+    public Product getProductForDate(ProductKey key, LocalDate date) {
+        List<Product> snapshots = productSnapshotsMap.get(key);
+        if (snapshots == null) return null;
+
+        Product closestProduct = null;
+        for (Product p : snapshots) {
+            if (!p.getDate().isAfter(date)) { // product date <= target date
+                if (closestProduct == null || p.getDate().isAfter(closestProduct.getDate())) {
+                    closestProduct = p;
+                }
+            }
+        }
+        return closestProduct;
     }
 
     public List<Discount> getDiscounts(String productId, String store) {
@@ -79,14 +127,11 @@ public class ProductDiscountService {
             }
 
             if (bestDiscount != null) {
-                // get the product for this product + store
-                Product product = productMap.get(key);
-                if (product != null) {
-                    // check if there's already a discount recorded for this productId
-                    // update if this discount is better
+                Product latestProduct = getLatestProductSnapshot(key.productId());
+                if (latestProduct != null) {
                     ProductBestDiscount alreadyRecordedDiscount = bestDiscountMap.get(key.productId());
                     if (alreadyRecordedDiscount == null || maxDiscount > alreadyRecordedDiscount.getDiscount().getDiscount()) {
-                        bestDiscountMap.put(key.productId(), new ProductBestDiscount(product, bestDiscount));
+                        bestDiscountMap.put(key.productId(), new ProductBestDiscount(latestProduct, bestDiscount));
                     }
                 }
             }
@@ -114,7 +159,7 @@ public class ProductDiscountService {
         return newDiscounts;
     }
 
-    private double calculateDiscountedPrice(double price, int discountedPrice) {
+    public double calculateDiscountedPrice(double price, int discountedPrice) {
         double discounted = price - (price * discountedPrice / 100);
         return new BigDecimal(discounted)
                 .setScale(2, RoundingMode.HALF_UP)
@@ -124,41 +169,43 @@ public class ProductDiscountService {
     public List<PriceHistoryPoint> getPriceHistoryPoints(String productId){
         List<PriceHistoryPoint> historyPoints = new ArrayList<>();
 
-        for(Map.Entry<ProductKey, Product> entry : productMap.entrySet()) {
+        for(Map.Entry<ProductKey, List<Product>> entry : productSnapshotsMap.entrySet()) {
             ProductKey key = entry.getKey();
-            Product product = entry.getValue();
+            List<Product> productSnapshots = entry.getValue();
 
-            if (!product.getId().equals(productId)) {
-                continue;
-            }
+            for(Product product : productSnapshots) {
+                if (!product.getId().equals(productId)) {
+                    continue;
+                }
 
-            List<Discount> discounts = discountMap.get(key);
+                List<Discount> discounts = discountMap.get(key);
 
-            if (discounts == null || discounts.isEmpty()) {
-                historyPoints.add(new PriceHistoryPoint(
-                        product.getId(),
-                        product.getStore(),
-                        product.getDate(),
-                        product.getDate(),
-                        product.getPrice(),
-                        product.getPrice())
-                );
-            } else {
-                for (Discount discount : discounts) {
-                    LocalDate fromDate = LocalDate.parse(discount.getFromDate());
-                    LocalDate toDate = LocalDate.parse(discount.getToDate());
-                    double discountedPrice = calculateDiscountedPrice(product.getPrice(), discount.getDiscount());
-
-                    PriceHistoryPoint point = new PriceHistoryPoint(
+                if (discounts == null || discounts.isEmpty()) {
+                    historyPoints.add(new PriceHistoryPoint(
                             product.getId(),
                             product.getStore(),
-                            fromDate,
-                            toDate,
+                            product.getDate(),
+                            product.getDate(),
                             product.getPrice(),
-                            discountedPrice
+                            product.getPrice())
                     );
+                } else {
+                    for (Discount discount : discounts) {
+                        LocalDate fromDate = LocalDate.parse(discount.getFromDate());
+                        LocalDate toDate = LocalDate.parse(discount.getToDate());
+                        double discountedPrice = calculateDiscountedPrice(product.getPrice(), discount.getDiscount());
 
-                    historyPoints.add(point);
+                        PriceHistoryPoint point = new PriceHistoryPoint(
+                                product.getId(),
+                                product.getStore(),
+                                fromDate,
+                                toDate,
+                                product.getPrice(),
+                                discountedPrice
+                        );
+
+                        historyPoints.add(point);
+                    }
                 }
             }
         }

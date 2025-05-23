@@ -26,7 +26,7 @@ public class ProductDiscountController {
             @PathVariable String store,
             @PathVariable String productId) {
 
-        Product product = productDiscountService.getProduct(productId, store);
+        Product product = productDiscountService.getLatestProductSnapshot(productId, store);
         if (product != null) {
             return ResponseEntity.ok(product);
         } else {
