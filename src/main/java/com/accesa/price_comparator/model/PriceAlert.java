@@ -7,6 +7,7 @@ public class PriceAlert {
     private String productId;
     private String store;
     private double targetPrice;
+    private double discountedPrice;
     private boolean triggered;
 
     public PriceAlert(){
@@ -14,11 +15,12 @@ public class PriceAlert {
         triggered = false;
     }
 
-    public PriceAlert(String productId, String store, double targetPrice) {
+    public PriceAlert(String productId, String store, double targetPrice, double discountedPrice) {
         this();
         this.productId = productId;
         this.store = store;
         this.targetPrice = targetPrice;
+        this.discountedPrice = discountedPrice;
     }
 
     public UUID getId() {
@@ -37,6 +39,10 @@ public class PriceAlert {
         return targetPrice;
     }
 
+    public double getDiscountedPrice() {
+        return discountedPrice;
+    }
+
     public void setProductId(String productId) {
         this.productId = productId;
     }
@@ -47,6 +53,10 @@ public class PriceAlert {
 
     public void setTargetPrice(double targetPrice) {
         this.targetPrice = targetPrice;
+    }
+
+    public void setDiscountedPrice(double discountedPrice) {
+        this.discountedPrice = discountedPrice;
     }
 
     public boolean isTriggered() {
