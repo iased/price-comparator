@@ -68,6 +68,9 @@ This application parses product and discount data from CSV files and links them 
 * Enabling users to find the best buy products by name (with optional brand filtering) to help compare prices effectively regardless of pack size
   * Highlights "value per unit" (e.g., price per kg, price per liter)
   * Allows filtering by product brand
+* Creating and monitoring price alerts
+  * Users can set a target price for a product
+  * The system checks for active discounts and alerts users when the target price is reached
   
 The data model separates products and discounts for modularity and scalability, while a central service efficiently binds them together for query operations.
 
@@ -101,7 +104,6 @@ Returns a list of products with the **highest percentage discounts** currently a
 `GET /api/market/new-discounts`\
 Returns a list of discounts that have been newly added (e.g., within the last 24 hours).
 
-
 ### **Get price history points for a product**
 `GET /api/market/{productId}/price-history`\
 Returns the price history for a specific product across all stores.
@@ -116,13 +118,25 @@ Returns the product with the best price per unit for the given product name, acr
 Optional query parameter `brand` can be used to filter by a specific product brand:\
 `GET /api/products/{name}/best-buy?brand={brand}`
 
+### **Create a new price alert**
+`POST /api/price-alerts`\
+Creates a new price alert for a specific product and store. The alert is triggered when the product’s current or discounted price falls below the specified target price.\
+Request body:\
+`{`\
+`"productId": "string",`\
+`"store": "string",`\
+`"targetPrice": double`\
+`}`
+
+### **Check for triggered alerts**
+`GET /api/price-alerts/check`\
+Checks all stored price alerts and returns the ones that have been triggered based on current or discounted product prices. An alert is marked as triggered once the condition is met.\
+
+Response:\
+Returns a list of triggered PriceAlert objects.
+
+
 ## Upcoming features
 
 * **Daily Shopping Basket Monitoring**\
 Help users split their basket into shopping lists that optimise for cost savings
-
-
-* **Custom Price Alert**
-Allow users to set a target price for a product. 
-The system should be able to identify when a product's price drops to or below that target.
-
