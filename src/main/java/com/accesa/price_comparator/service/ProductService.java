@@ -2,6 +2,8 @@ package com.accesa.price_comparator.service;
 
 import com.accesa.price_comparator.domain.Product;
 import com.opencsv.bean.CsvToBeanBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -16,6 +18,11 @@ import java.util.*;
 
 @Service
 public class ProductService {
+    private final ProductDiscountService productDiscountService;
+
+    public ProductService(@Lazy ProductDiscountService productDiscountService) {
+        this.productDiscountService = productDiscountService;
+    }
 
     public List<Product> getAllProducts() {
         List<Product> allProducts = new ArrayList<>();
@@ -79,7 +86,7 @@ public class ProductService {
     }
 
     public List<Product> getBestBuyProducts(String name){
-        List<Product> products = getAllProducts();
+        List<Product> products = productDiscountService.getAllLatestProductSnapshots();
         List<Product> bestBuys = new ArrayList<>();
         double lowestPricePerUnit = Double.MAX_VALUE;
 
@@ -103,7 +110,7 @@ public class ProductService {
     }
 
     public List<Product> getBestBuyProducts(String name, String brand){
-        List<Product> products = getAllProducts();
+        List<Product> products = productDiscountService.getAllLatestProductSnapshots();
         List<Product> bestBuys = new ArrayList<>();
         double lowestPricePerUnit = Double.MAX_VALUE;
         String normalizedName = normalizeString(name);

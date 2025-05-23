@@ -73,20 +73,17 @@ public class ProductDiscountService {
         return latestProduct;
     }
 
+    public List<Product> getAllLatestProductSnapshots() {
+        List<Product> latestSnapshots = new ArrayList<>();
 
-    public Product getProductForDate(ProductKey key, LocalDate date) {
-        List<Product> snapshots = productSnapshotsMap.get(key);
-        if (snapshots == null) return null;
-
-        Product closestProduct = null;
-        for (Product p : snapshots) {
-            if (!p.getDate().isAfter(date)) { // product date <= target date
-                if (closestProduct == null || p.getDate().isAfter(closestProduct.getDate())) {
-                    closestProduct = p;
-                }
+        for (ProductKey key : productSnapshotsMap.keySet()) {
+            Product latest = getLatestProductSnapshot(key.productId(), key.store());
+            if (latest != null) {
+                latestSnapshots.add(latest);
             }
         }
-        return closestProduct;
+
+        return latestSnapshots;
     }
 
     public List<Discount> getDiscounts(String productId, String store) {
@@ -127,7 +124,7 @@ public class ProductDiscountService {
             }
 
             if (bestDiscount != null) {
-                Product latestProduct = getLatestProductSnapshot(key.productId());
+                Product latestProduct = getLatestProductSnapshot(key.productId(), key.store());
                 if (latestProduct != null) {
                     ProductBestDiscount alreadyRecordedDiscount = bestDiscountMap.get(key.productId());
                     if (alreadyRecordedDiscount == null || maxDiscount > alreadyRecordedDiscount.getDiscount().getDiscount()) {
