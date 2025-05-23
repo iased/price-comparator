@@ -57,6 +57,7 @@ public class ProductService {
                     for(Product product: products){
                         product.setStore(storeName);
                         product.setDate(productDate);
+                        product.calculatePricePerUnit();
                     }
 
                     allProducts.addAll(products);

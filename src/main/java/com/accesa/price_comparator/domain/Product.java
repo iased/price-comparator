@@ -2,6 +2,8 @@ package com.accesa.price_comparator.domain;
 
 import com.opencsv.bean.CsvBindByName;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 
 public class Product {
@@ -151,7 +153,9 @@ public class Product {
     }
 
     public void calculatePricePerUnit() {
-        this.pricePerUnit = this.price / switchToStandardUnit(this.quantity, this.unit);
+        this.pricePerUnit = new BigDecimal(this.price / switchToStandardUnit(this.quantity, this.unit))
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
     }
 }
 
