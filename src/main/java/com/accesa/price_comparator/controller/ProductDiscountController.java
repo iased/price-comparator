@@ -22,15 +22,15 @@ public class ProductDiscountController {
     }
 
     @GetMapping("/{store}/{productId}")
-    public ResponseEntity<Product> getProduct(
+    public ResponseEntity<List<Product>> getProduct(
             @PathVariable String store,
             @PathVariable String productId) {
 
         Product product = productDiscountService.getLatestProductSnapshot(productId, store);
         if (product != null) {
-            return ResponseEntity.ok(product);
+            return ResponseEntity.ok(List.of(product)); // Return a list with one item
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(List.of()); // Return an empty list []
         }
     }
 
