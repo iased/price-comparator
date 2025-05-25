@@ -135,8 +135,39 @@ Checks all stored price alerts and returns the ones that have been triggered bas
 Response:\
 Returns a list of triggered PriceAlert objects.
 
+### **Optimize basket by store**\
+`POST /api/basket/optimize`\
+Splits a list of basket items into groups based on the store they belong to.\
+Request body:\
+`[`\
+`{`\
+`"productId": "string",`\
+`"store": "string",`\
+`"quantity": integer,`\
+`"price": double`\
+`}`\
+`]`
 
-## Upcoming features
 
-* **Daily Shopping Basket Monitoring**\
-Help users split their basket into shopping lists that optimise for cost savings
+Response:\
+Returns a map where each key is a store name and the value is a list of BasketItem objects belonging to that store.
+
+Example response:\
+`{`\
+`"lidl": [`\
+`{`\
+`"productId": "string",`\
+`"store": "lidl",`\
+`"quantity": 2,`\
+`"price": 10.0`\
+`}`\
+`],`\
+`"kaufland": [`\
+`{`\
+`"productId": "string",`\
+`"store": "kaufland",`\
+`"quantity": 1,`\
+`"price": 15.0`\
+`}`\
+`]`\
+`}`
