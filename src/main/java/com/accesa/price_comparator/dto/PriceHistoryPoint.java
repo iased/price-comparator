@@ -1,6 +1,7 @@
 package com.accesa.price_comparator.dto;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class PriceHistoryPoint {
     private String productId;
@@ -41,5 +42,23 @@ public class PriceHistoryPoint {
 
     public double getDiscountedPrice() {
         return discountedPrice;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PriceHistoryPoint)) return false;
+        PriceHistoryPoint that = (PriceHistoryPoint) o;
+        return Double.compare(that.price, price) == 0 &&
+                Double.compare(that.discountedPrice, discountedPrice) == 0 &&
+                Objects.equals(productId, that.productId) &&
+                Objects.equals(store, that.store) &&
+                Objects.equals(fromDate, that.fromDate) &&
+                Objects.equals(toDate, that.toDate);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(productId, store, fromDate, toDate, price, discountedPrice);
     }
 }

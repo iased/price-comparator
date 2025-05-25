@@ -156,15 +156,15 @@ public class ProductDiscountService {
         return newDiscounts;
     }
 
-    public double calculateDiscountedPrice(double price, int discountedPrice) {
-        double discounted = price - (price * discountedPrice / 100);
-        return new BigDecimal(discounted)
+    public double calculateDiscountedPrice(double price, int discount) {
+        double discountedPrice = price - (price * discount / 100);
+        return new BigDecimal(discountedPrice)
                 .setScale(2, RoundingMode.HALF_UP)
                 .doubleValue();
     }
 
     public List<PriceHistoryPoint> getPriceHistoryPoints(String productId){
-        List<PriceHistoryPoint> historyPoints = new ArrayList<>();
+        Set<PriceHistoryPoint> historyPoints = new LinkedHashSet<>();
 
         for(Map.Entry<ProductKey, List<Product>> entry : productSnapshotsMap.entrySet()) {
             ProductKey key = entry.getKey();
@@ -207,7 +207,7 @@ public class ProductDiscountService {
             }
         }
 
-        return historyPoints;
+        return new ArrayList<>(historyPoints);
     }
 
     public List<PriceHistoryPoint> getPriceHistoryPointsByStore(String productId, String store){

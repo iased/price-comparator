@@ -44,7 +44,6 @@ public class ProductDiscountController {
     @GetMapping("/best-discounts")
     public ResponseEntity<List<ProductBestDiscount>> getBestDiscounts() {
         List<ProductBestDiscount> productBestDiscounts = productDiscountService.getProductsWithBestDiscounts();
-        System.out.println("Best discounts count: " + productBestDiscounts.size());
         return ResponseEntity.ok(productBestDiscounts);
     }
 

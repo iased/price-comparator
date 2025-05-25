@@ -78,6 +78,16 @@ public class ProductService {
         return allProducts;
     }
 
+    public Product getProduct(String productId) {
+        List<Product> allProducts = getAllProducts();
+        for(Product product: allProducts){
+            if(product.getId().equals(productId)){
+                return product;
+            }
+        }
+        return null;
+    }
+
     private String normalizeString(String input) {
         return Normalizer.normalize(input, Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "")  // remove diacritics
