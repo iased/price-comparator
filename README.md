@@ -29,7 +29,7 @@ Check with:
 `docker compose version`
 
 \# Docker Compose v1:\
-`docker-compose up --build -d`
+`docker-compose version`
 
 You do not need local Java, Maven, Node.js, or npm installations; Docker handles building and running everything in containers.
 
