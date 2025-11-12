@@ -3,7 +3,11 @@ package com.uo.price_comparator.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name="products")
+@Table(name="products",
+        uniqueConstraints = @UniqueConstraint(columnNames = {
+                "name", "brand", "category", "quantity", "unit"
+        })
+)
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
