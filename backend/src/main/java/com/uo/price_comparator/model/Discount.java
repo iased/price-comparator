@@ -5,7 +5,11 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name="discounts")
+@Table(name="discounts",
+        uniqueConstraints = @UniqueConstraint(columnNames = {
+                "product_id", "supermarket_id", "from_date", "to_date"
+        })
+)
 public class Discount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
