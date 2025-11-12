@@ -23,4 +23,14 @@ public class DiscountController {
     public List<Discount> getAllDiscounts(){
         return discountService.getAllDiscounts();
     }
+
+    @GetMapping("/today")
+    public List<Discount> getDiscountsToday() {
+        return discountService.getDiscountsToday();
+    }
+
+    @GetMapping("/this-week")
+    public List<Discount> getDiscountsThisWeek() {
+        return discountService.getDiscountsThisWeek();
+    }
 }
