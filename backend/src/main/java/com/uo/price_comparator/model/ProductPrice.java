@@ -6,7 +6,10 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "product_prices",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"product_id", "supermarket_id", "price_date"}))
+        uniqueConstraints = @UniqueConstraint(columnNames = {
+                "product_id", "supermarket_id", "price_date"
+        })
+)
 public class ProductPrice {
 
     @Id
@@ -28,6 +31,9 @@ public class ProductPrice {
     private Double price;
 
     private String currency = "RON";
+
+    @Transient
+    private Double discountedPrice;
 
     public ProductPrice() {
 
@@ -89,4 +95,9 @@ public class ProductPrice {
     public void setCurrency(String currency) {
         this.currency = currency;
     }
+
+    public Double getDiscountedPrice() { return discountedPrice; }
+
+    public void setDiscountedPrice(Double discountedPrice) { this.discountedPrice = discountedPrice; }
+
 }
