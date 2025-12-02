@@ -1,0 +1,158 @@
+.discounts-page {
+  max-width: 960px;
+  margin: 0 0 40px 0;
+  padding-left: 16px;
+}
+
+/* Today / This Week switcher – same style as store switcher */
+.discount-switcher {
+  display: flex;
+  gap: 8px;
+  margin: 16px 0 24px;
+}
+
+.discount-switcher button {
+  padding: 6px 18px;
+  border-radius: 999px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.discount-switcher button.active {
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}
+
+/* loading / error text */
+.state {
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.state.error {
+  color: #c0392b;
+}
+
+/* cards grid */
+.discounts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+/* individual card */
+.discount-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 18px;
+  border: 1px solid #f0f0f0;
+  background: #fff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+}
+
+/* left thumb */
+.card-thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-thumb img {
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.thumb-placeholder {
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  background: #f5f5f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 24px;
+}
+
+/* middle content */
+.card-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.discount-name {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.discount-brand {
+  font-size: 13px;
+  color: #666;
+}
+
+/* red percentage pill */
+.discount-percentage {
+  display: inline-block;
+  align-self: flex-start;
+  margin: 6px 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #d8193f;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.discount-store {
+  font-size: 13px;
+  color: #666;
+}
+
+.discount-dates {
+  font-size: 12px;
+  color: #888;
+}
+
+/* right meta column */
+.card-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.meta-tag {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #f1f3f6;
+  font-size: 11px;
+  font-weight: 600;
+  color: #555;
+}
+
+.meta-time {
+  font-size: 12px;
+  color: #888;
+}
+
+/* small-screen tweak: stack columns when very narrow */
+@media (max-width: 640px) {
+  .discount-card {
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .card-meta {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+  }
+}

@@ -1,0 +1,40 @@
+.tabs-container {
+  position: relative;
+  display: flex;
+  justify-content: flex-start;
+  background: #f5f5f8;
+  padding: 3px;
+  border-radius: 999px;
+  gap: 0;                 // no gap between tabs
+  width: 260px;           // or any fixed width you like
+  margin: 16px 0 24px 0;
+}
+
+.tab {
+  position: relative;
+  flex: 1 0 0;            // each tab takes exactly 50%
+  text-align: center;
+  background: transparent;
+  border: none;
+  padding: 6px 0;         // no horizontal padding needed now
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.tab.active {
+  color: #000;
+}
+
+.tabs-bg {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  width: 50%;             // always half of the container
+  background: #ffffff;
+  border-radius: 999px;
+  z-index: 1;
+  transition: transform 0.25s ease;
+}
