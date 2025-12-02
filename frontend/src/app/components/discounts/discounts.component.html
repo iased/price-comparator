@@ -1,0 +1,49 @@
+<div class="discounts-page">
+
+  <div class="discount-switcher">
+    <button *ngFor="let t of discountTypes" (click)="selectDiscountType(t)" [class.active]="t === selectedDiscountsType"> {{ t }} </button>
+  </div>
+
+  <div *ngIf="loading" class="state">Loading discounts…</div>
+  <div *ngIf="error" class="state error">{{ error }}</div>
+
+  <div class="discounts-grid" *ngIf="!loading && !error">
+    <div class="discount-card" *ngFor="let d of discounts">
+
+      <div class="card-thumb">
+        <div class="thumb-placeholder">
+          {{ (d.product?.name || '?')[0] | uppercase }}
+        </div>
+      </div>
+
+      <div class="card-main">
+        <div class="discount-name">
+          {{ d.product?.name | titlecase }}
+        </div>
+
+        <div class="discount-brand">
+          {{ d.product?.brand | titlecase }}
+        </div>
+
+        <div class="discount-percentage">
+          {{ d.percentageOfDiscount }}% OFF
+        </div>
+
+        <div class="discount-store">
+          {{ d.supermarket?.name }}
+        </div>
+
+        <div class="discount-dates">
+          Valabil din data de {{ d.fromDate | date:'dd.MM.yyyy'}} până la {{ d.toDate | date:'dd.MM.yyyy' }}
+        </div>
+      </div>
+
+      <div class="card-meta">
+        <div class="meta-tag">
+          NEW
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
