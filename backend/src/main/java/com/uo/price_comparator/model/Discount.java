@@ -30,13 +30,13 @@ public class Discount {
     private LocalDate toDate;
 
     @Column(name = "percentage_of_discount", nullable = false)
-    private Double percentageOfDiscount;
+    private Integer percentageOfDiscount;
 
     public Discount() {
 
     }
 
-    public Discount(Long id, Product product, Supermarket supermarket, LocalDate fromDate, LocalDate toDate, Double percentageOfDiscount) {
+    public Discount(Long id, Product product, Supermarket supermarket, LocalDate fromDate, LocalDate toDate, Integer percentageOfDiscount) {
         this.id = id;
         this.product = product;
         this.supermarket = supermarket;
@@ -85,11 +85,11 @@ public class Discount {
         this.toDate = toDate;
     }
 
-    public Double getPercentageOfDiscount() {
+    public Integer getPercentageOfDiscount() {
         return percentageOfDiscount;
     }
 
-    public void setPercentageOfDiscount(Double percentageOfDiscount) {
+    public void setPercentageOfDiscount(Integer percentageOfDiscount) {
         this.percentageOfDiscount = percentageOfDiscount;
     }
 }
