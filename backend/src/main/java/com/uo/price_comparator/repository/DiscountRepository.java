@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface DiscountRepository extends JpaRepository<Discount, Long> {
@@ -27,6 +28,16 @@ public interface DiscountRepository extends JpaRepository<Discount, Long> {
 
     @Query("""
         SELECT d FROM Discount d
+        WHERE d.product.id = :productId
+          AND d.supermarket.id = :supermarketId
+          AND :date BETWEEN d.fromDate AND d.toDate
+    """)
+    Optional<Discount> findActiveDiscount(@Param("productId") Long productId,
+                                          @Param("supermarketId") Long supermarketId,
+                                          @Param("date") LocalDate date);
+
+    @Query("""
+        SELECT d FROM Discount d
         WHERE :today BETWEEN d.fromDate AND d.toDate
     """)
     List<Discount> findDiscountsForToday(@Param("today") LocalDate today);
@@ -37,4 +48,6 @@ public interface DiscountRepository extends JpaRepository<Discount, Long> {
     """)
     List<Discount> findDiscountsForThisWeek(@Param("startOfWeek") LocalDate startOfWeek,
                                         @Param("endOfWeek") LocalDate endOfWeek);
+
+
 }
