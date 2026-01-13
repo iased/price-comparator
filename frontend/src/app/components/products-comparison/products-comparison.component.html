@@ -9,10 +9,19 @@
     <div *ngFor="let product of filteredProducts" class="product-card">
       <!-- left: image placeholder -->
       <div class="product-image">
-        <div class="img-placeholder">
-          {{ product.name.charAt(0) | uppercase }}
-        </div>
+        <img
+          *ngIf="product.imageUrl; else placeholder"
+          [src]="product.imageUrl"
+          [alt]="product.name"
+        />
+
+        <ng-template #placeholder>
+          <div class="img-placeholder">
+            {{ product.name.charAt(0) | uppercase }}
+          </div>
+        </ng-template>
       </div>
+
 
       <!-- right: content -->
       <div class="product-content">
@@ -26,6 +35,7 @@
           </div>
         </div>
 
+        <div class="price-column">
         <!-- best price strip -->
         <div class="best-price-strip" *ngIf="product.bestOffer as bo">
           <div>
@@ -65,7 +75,7 @@
         </div>
 
         <!-- offers row -->
-        <div class="offers-row">
+        <div class="offers-row" [ngClass]="'offers-' + product.offers.length">
           <div
             *ngFor="let offer of product.offers"
             class="offer-card"
@@ -108,6 +118,7 @@
               </span>
             </div>
           </div>
+        </div>
         </div>
       </div>
       <!-- /product-content -->
