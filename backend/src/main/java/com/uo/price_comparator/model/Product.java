@@ -21,17 +21,21 @@ public class Product {
     private double quantity;
     private String unit;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
     public Product(){
 
     }
 
-    public Product(Long id, String name, String brand, String category, double quantity, String unit) {
+    public Product(Long id, String name, String brand, String category, double quantity, String unit, String imageUrl) {
         this.id = id;
         this.name = name;
         this.brand = brand;
         this.category = category;
         this.quantity = quantity;
         this.unit = unit;
+        this.imageUrl = imageUrl;
     }
 
     public Long getId() {
@@ -81,4 +85,9 @@ public class Product {
     public void setUnit(String unit) {
         this.unit = unit;
     }
+
+    public String getImageUrl() { return imageUrl; }
+
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
 }

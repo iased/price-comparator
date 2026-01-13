@@ -4,17 +4,17 @@ INSERT INTO supermarkets (name) VALUES ('Profi') ON CONFLICT (name) DO NOTHING;
 INSERT INTO supermarkets (name) VALUES ('Kaufland') ON CONFLICT (name) DO NOTHING;
 
 -- Products
-INSERT INTO products (name, brand, category, quantity, unit) VALUES
-('lapte', 'Zuzu', 'lactate', 1, 'l'),
-('iaurt grecesc', 'Pilos', 'lactate', 0.4, 'kg'),
-('ouă mărimea M', 'Profi', 'ouă', 10, 'buc'),
-('brânză telemea', 'Kaufland', 'lactate', 0.3, 'kg'),
-('pâine albă', 'Lidl', 'panificație', 500, 'g'),
-('roșii cherry', 'Profi', 'legume și fructe', 250, 'g'),
-('piept de pui', 'Kaufland', 'carne', 1, 'kg'),
-('spaghetti nr.5', 'Barilla', 'paste făinoase', 500, 'g'),
-('zahăr tos', 'Mărgăritar', 'alimente de bază', 1, 'kg'),
-('apă plată', 'Aqua Carpatica', 'băuturi', 2, 'l')
+INSERT INTO products (name, brand, category, quantity, unit, image_url) VALUES
+('lapte', 'Zuzu', 'lactate', 1, 'l', 'https://auchan.vtexassets.com/arquivos/ids/162906-1200-1200?v=637981790362670000&width=1200&height=1200&aspect=true'),
+('iaurt grecesc', 'Pilos', 'lactate', 0.4, 'kg', 'https://imgproxy-retcat.assets.schwarz/5V_9w5pWt1YGSAvAldRPQhwy6nA0Ua2wYgfcpGlRlxA/sm:1/w:1278/h:959/cz/M6Ly9wcm9kLWNhd/GFsb2ctbWVkaWEvcm8vMS8zOEYzNTVGQzdBQ0M3ODBGMTQwODFENzZ/DOEI5OTNCMEU1RDVCODk5QzJEQUE3QTlGQjZFRTE1QkJFNUM2N0M1LmpwZw.jpg'),
+('ouă mărimea M', 'Profi', 'ouă', 10, 'buc', 'https://nutriwell.ro/wp-content/uploads/2019/07/ce-inseamn%C4%83-codul-de-pe-ou%C4%83-1024x683.jpg'),
+('brânză telemea', 'Kaufland', 'lactate', 0.3, 'kg', 'https://www.delabunici.ro/data/articles/7/751/telemea-de-capra-1b.jpg'),
+('pâine albă', 'Lidl', 'panificație', 500, 'g', 'https://sp-ao.shortpixel.ai/client/q_glossy+w_1056+to_auto+ret_img/pastry-workshop.com/wp-content/uploads/2017/08/paine-alba-de-casa-min.jpg'),
+('roșii cherry', 'Profi', 'legume și fructe', 250, 'g', 'https://froopt.ro//images/7261/conversions/ROSII-CHERRY-PE-CRENGUTA-(3)-large.jpg'),
+('piept de pui', 'Kaufland', 'carne', 1, 'kg', 'https://d2j6dbq0eux0bg.cloudfront.net/images/44675013/1930104647.jpg'),
+('paste penne', 'Barilla', 'paste făinoase', 500, 'g', 'https://www.the-pasta-project.com/wp-content/uploads/Penne-Pasta-1.jpg'),
+('zahăr tos', 'Mărgăritar', 'alimente de bază', 1, 'kg', 'https://s13emagst.akamaized.net/products/41616/41615609/images/res_404bdea4a3c24e6d15e1491910ee5812.jpg'),
+('apă plată', 'Aqua Carpatica', 'băuturi', 2, 'l', 'https://auchan.vtexassets.com/arquivos/ids/251147-1200-1200?v=638404767366930000&width=1200&height=1200&aspect=true')
 ON CONFLICT (name, brand, category, quantity, unit) DO NOTHING;
 
 -- Product prices
