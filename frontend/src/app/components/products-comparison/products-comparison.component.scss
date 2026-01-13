@@ -57,32 +57,33 @@
 
 .product-card {
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 1rem;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 1.25rem;
   padding: 1rem 1.25rem;
   border-radius: 1rem;
   background: #ffffff;
   box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+  align-items: start;
 }
 
 .product-image {
-  display: flex;
-  align-items: flex-start;
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  background: #eef1f5;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+}
 
-  .img-placeholder {
-    width: 72px;
-    height: 96px;
-    border-radius: 0.75rem;
-    background: #f1f2f6;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    color: #999;
-  }
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transform: scale(1.15);
 }
 
 .product-content {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -104,6 +105,14 @@
     color: #666;
     margin-top: 0.15rem;
   }
+}
+
+.price-column {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-rows: auto auto;
+  row-gap: 0.75rem;
 }
 
 .best-price-strip {
@@ -167,11 +176,18 @@
 
 .offers-row {
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(140px, 1fr);
   gap: 0.75rem;
-  overflow-x: auto;
-  padding-top: 0.25rem;
+}
+
+.offers-row.offers-1,
+.offers-row.offers-2,
+.offers-row.offers-3 {
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+}
+
+.offers-row.offers-4,
+.offers-row.offers-5 {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
 .offer-card {
@@ -179,15 +195,9 @@
   border: 1px solid #e3e3e8;
   padding: 0.6rem 0.8rem;
   background: #ffffff;
-  min-width: 140px;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-
-  &.best {
-    border-color: #3ccf7a;
-    background: #f0fff6;
-  }
 }
 
 .offer-card.best {
@@ -195,7 +205,6 @@
   border-color: #22c55e;
   box-shadow: 0 0 0 0.1px #22c55e inset;
 }
-
 
 .offer-store {
   font-size: 0.8rem;
