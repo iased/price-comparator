@@ -17,4 +17,5 @@ export interface ProductComparison {
   unit: string;
   offers: Offer[];
   bestOffer: Offer;
+  imageUrl?: string;
 }

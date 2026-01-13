@@ -9,6 +9,7 @@ public class ProductComparisonDto {
     private String category;
     private double quantity;
     private String unit;
+    private String imageUrl;
 
     private List<OfferDto> offers;
     private OfferDto bestOffer;
@@ -30,6 +31,10 @@ public class ProductComparisonDto {
 
     public String getUnit() { return unit; }
     public void setUnit(String unit) { this.unit = unit; }
+
+    public String getImageUrl() { return imageUrl; }
+
+    public void setImageUrl(String imageURL) { this.imageUrl = imageURL; }
 
     public List<OfferDto> getOffers() { return offers; }
     public void setOffers(List<OfferDto> offers) { this.offers = offers; }

@@ -52,6 +52,7 @@ public class ProductComparisonService {
             dto.setCategory(product.getCategory());
             dto.setQuantity(product.getQuantity());
             dto.setUnit(product.getUnit());
+            dto.setImageUrl(product.getImageUrl());
 
             List<OfferDto> offers = new ArrayList<>();
 
