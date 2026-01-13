@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ApiService } from '../../api.service';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-discounts',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './discounts.component.html',
   styleUrl: './discounts.component.scss'

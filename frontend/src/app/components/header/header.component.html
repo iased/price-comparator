@@ -1,6 +1,32 @@
 <header class="header">
-  <div class="logo">
-    🛍️ <span>Price Comparison</span>
+  <div class="header-container">
+    <div class="header-top">
+      <div class="logo">🛒 <span>Price Comparison</span></div>
+    </div>
+
+    <div class="header-filters">
+      <div class="search-wrapper">
+        <input
+          #searchBox
+          class="search-input"
+          type="text"
+          placeholder="Search products by name or brand..."
+          (input)="onSearch(searchBox.value)"
+        />
+      </div>
+
+      <div class="select-wrap">
+        <select
+          class="store-select"
+          #storeSelect
+          (change)="onStoreChange(storeSelect.value)"
+        >
+          <option value="">All Stores</option>
+          <option value="Lidl">Lidl</option>
+          <option value="Profi">Profi</option>
+          <option value="Kaufland">Kaufland</option>
+        </select>
+      </div>
+    </div>
   </div>
 </header>
-

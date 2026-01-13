@@ -1,0 +1,116 @@
+  <div class="meta" *ngIf="filteredProducts.length">
+    {{ filteredProducts.length }} products found
+  </div>
+
+  <div *ngIf="loading" class="state">Loading…</div>
+  <div *ngIf="error" class="state error">{{ error }}</div>
+
+  <div class="product-list" *ngIf="!loading && !error">
+    <div *ngFor="let product of filteredProducts" class="product-card">
+      <!-- left: image placeholder -->
+      <div class="product-image">
+        <div class="img-placeholder">
+          {{ product.name.charAt(0) | uppercase }}
+        </div>
+      </div>
+
+      <!-- right: content -->
+      <div class="product-content">
+        <!-- header row -->
+        <div class="product-header">
+          <div>
+            <div class="product-name">{{ product.name | titlecase }}</div>
+            <div class="product-subtitle">
+              {{ product.brand }} • {{ product.quantity }}{{ product.unit }}
+            </div>
+          </div>
+        </div>
+
+        <!-- best price strip -->
+        <div class="best-price-strip" *ngIf="product.bestOffer as bo">
+          <div>
+            <div class="label">Best Price</div>
+
+            <div class="best-price-row">
+              <div class="best-price-main">
+                {{ getEffectivePrice(bo) | number : '1.2-2' }} RON
+              </div>
+
+              <div class="best-price-old" *ngIf="hasDiscount(bo)">
+                {{ bo.price | number : '1.2-2' }} RON
+              </div>
+            </div>
+
+            <div class="best-price-per-unit" *ngIf="getEffectivePricePerUnit(bo) as ppu">
+              {{ ppu | number : '1.2-2' }} RON / {{ product.unit }}
+            </div>
+          </div>
+
+          <div class="best-price-side" *ngIf="getBestOffers(product) as best">
+            <div class="best-store">
+              <ng-container *ngIf="best.length === 1; else tieTpl">
+                {{ best[0].store }}
+              </ng-container>
+
+              <ng-template #tieTpl>
+                Best at {{ best.length }} stores
+              </ng-template>
+            </div>
+
+            <div *ngIf="best[0].discountPercent != null" class="discount-pill">
+              {{ best[0].discountPercent | number : '1.0-0' }}% OFF
+            </div>
+          </div>
+
+        </div>
+
+        <!-- offers row -->
+        <div class="offers-row">
+          <div
+            *ngFor="let offer of product.offers"
+            class="offer-card"
+            [class.best]="isBestOffer(product, offer)"
+          >
+            <div class="offer-store">{{ offer.store }}</div>
+
+            <div class="offer-prices">
+              <div
+                class="offer-old-price"
+                *ngIf="hasDiscount(offer)"
+              >
+                {{ offer.price | number : '1.2-2' }} RON
+              </div>
+
+              <div class="offer-current-price">
+                {{ getEffectivePrice(offer) | number : '1.2-2' }} RON
+              </div>
+            </div>
+
+            <div
+              class="offer-ppu"
+              *ngIf="getEffectivePricePerUnit(offer) as ppu"
+            >
+              {{ ppu | number : '1.2-2' }} RON / {{ product.unit }}
+            </div>
+
+            <div class="offer-badges">
+              <span
+                *ngIf="offer.discountPercent != null"
+                class="pill pill-red"
+              >
+                -{{ offer.discountPercent | number : '1.0-0' }}%
+              </span>
+              <span
+                *ngIf="isBestOffer(product, offer)"
+                class="pill pill-green"
+              >
+                Best
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /product-content -->
+    </div>
+    <!-- /product-card -->
+  </div>
