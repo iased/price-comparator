@@ -85,12 +85,13 @@
             <div class="offer-store">{{ offer.store }}</div>
 
             <div class="offer-prices">
-              <div
-                class="offer-old-price"
-                *ngIf="hasDiscount(offer)"
-              >
+              <div class="offer-old-price" *ngIf="hasDiscount(offer); else noDiscountTpl">
                 {{ offer.price | number : '1.2-2' }} RON
               </div>
+
+              <ng-template #noDiscountTpl>
+                <div class="offer-old-price no-discount">No discount</div>
+              </ng-template>
 
               <div class="offer-current-price">
                 {{ getEffectivePrice(offer) | number : '1.2-2' }} RON
@@ -106,17 +107,19 @@
 
             <div class="offer-badges">
               <span
-                *ngIf="offer.discountPercent != null"
-                class="pill pill-red"
-              >
-                -{{ offer.discountPercent | number : '1.0-0' }}%
-              </span>
-              <span
                 *ngIf="isBestOffer(product, offer)"
                 class="pill pill-green"
               >
                 Best
               </span>
+
+              <span
+                *ngIf="offer.discountPercent != null"
+                class="pill pill-red"
+              >
+                -{{ offer.discountPercent | number:'1.0-0' }}%
+              </span>
+
             </div>
           </div>
           </ng-container>
