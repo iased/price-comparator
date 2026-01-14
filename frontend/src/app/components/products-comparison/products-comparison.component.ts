@@ -18,7 +18,7 @@ export class ProductsComparisonComponent {
   error: string | null = null;
 
   private searchTerm = '';
-  private storeFilter: string | null = null;
+  storeFilter: string | null = null;
 
   constructor(
     private api: ApiService,
@@ -58,53 +58,39 @@ export class ProductsComparisonComponent {
   }
 
   private applyFilters(): void {
-  let data = [...this.products];
+    let data = [...this.products];
 
-  if (this.searchTerm) {
-    data = data.filter((p) => {
-      const haystack = `${p.name} ${p.brand} ${p.category}`.toLowerCase();
-      return haystack.includes(this.searchTerm);
-    });
-  }
-
-  if (this.storeFilter) {
-    const sf = this.storeFilter.toLowerCase();
-
-    data = data
-      .map((p) => {
-        const offersForStore = p.offers.filter(
-          (o) => o.store.toLowerCase() === sf
-        );
-        if (!offersForStore.length) return null;
-
-        const bestOffer = offersForStore.reduce((best, current) => {
-          return this.getEffectivePrice(current) < this.getEffectivePrice(best)
-            ? current
-            : best;
-        });
-
-        return {
-          ...p,
-          offers: offersForStore,
-          bestOffer,
-        } as ProductComparison;
-      })
-      .filter((p): p is ProductComparison => p !== null);
-  } else {
-    data = data.map((p) => {
-      const bestOffer = p.offers.reduce((best, current) => {
-        return this.getEffectivePrice(current) < this.getEffectivePrice(best)
-          ? current
-          : best;
+    if (this.searchTerm) {
+      data = data.filter((p) => {
+        const haystack = `${p.name} ${p.brand} ${p.category}`.toLowerCase();
+        return haystack.includes(this.searchTerm);
       });
+    }
+
+    if (this.storeFilter) {
+      const sf = this.storeFilter.toLowerCase();
+
+      data = data.filter((p) =>
+        (p.offers ?? []).some((o) => o.store.toLowerCase() === sf)
+      );
+    }
+
+    data = data.map((p) => {
+      const offers = p.offers ?? [];
+      const bestOffer =
+        offers.length === 0
+          ? null
+          : offers.reduce((best, current) =>
+              this.getEffectivePrice(current) < this.getEffectivePrice(best)
+                ? current
+                : best
+            );
 
       return { ...p, bestOffer } as ProductComparison;
     });
+
+    this.filteredProducts = data;
   }
-
-  this.filteredProducts = data;
-}
-
 
   getEffectivePrice(offer: Offer): number {
     return offer.discountedPrice ?? offer.price;
