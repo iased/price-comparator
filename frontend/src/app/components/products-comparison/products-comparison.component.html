@@ -76,10 +76,11 @@
 
         <!-- offers row -->
         <div class="offers-row" [ngClass]="'offers-' + product.offers.length">
+          <ng-container *ngFor="let offer of product.offers">
           <div
-            *ngFor="let offer of product.offers"
             class="offer-card"
             [class.best]="isBestOffer(product, offer)"
+            *ngIf="!storeFilter || offer.store === storeFilter"
           >
             <div class="offer-store">{{ offer.store }}</div>
 
@@ -118,6 +119,7 @@
               </span>
             </div>
           </div>
+          </ng-container>
         </div>
         </div>
       </div>
