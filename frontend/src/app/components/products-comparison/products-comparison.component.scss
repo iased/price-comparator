@@ -191,7 +191,8 @@
 }
 
 .offer-card {
-  border-radius: 0.75rem;
+  text-align: center;
+  border-radius: 0.30rem;
   border: 1px solid #e3e3e8;
   padding: 0.6rem 0.8rem;
   background: #ffffff;
@@ -201,9 +202,8 @@
 }
 
 .offer-card.best {
-  background: #ecfdf5;
+  background: rgba(34, 197, 94, 0.06);
   border-color: #22c55e;
-  box-shadow: 0 0 0 0.1px #22c55e inset;
 }
 
 .offer-store {
@@ -223,6 +223,11 @@
   text-decoration: line-through;
 }
 
+.offer-old-price.no-discount {
+  text-decoration: none;
+  color: #9aa3af;
+}
+
 .offer-current-price {
   font-size: 0.95rem;
   font-weight: 600;
@@ -234,6 +239,7 @@
 }
 
 .offer-badges {
+  align-self: center;
   margin-top: 0.15rem;
   display: flex;
   flex-wrap: wrap;
@@ -257,4 +263,11 @@
     background: #e6fff0;
     color: #167c2b;
   }
+}
+
+.pill-spacer {
+  visibility: hidden;
+  width: 2.2rem;
+  height: 1rem;
+  display: inline-block;
 }
