@@ -5,6 +5,7 @@ import com.uo.price_comparator.repository.DiscountRepository;
 import com.uo.price_comparator.repository.ProductPriceRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -22,7 +23,18 @@ public class ProductPriceService {
     }
 
     public ProductPrice applyActiveDiscount(ProductPrice pp){
-        pp.setDiscountedPrice(discountService.getActiveDiscountedPrice(pp));
+        var bestOpt = discountService.getBestActiveDiscount(pp, LocalDate.now());
+
+        bestOpt.ifPresent(d -> {
+            double discounted = discountService.applyDiscount(pp.getPrice(), d.getPercentageOfDiscount());
+            pp.setDiscountedPrice(discounted);
+        });
+
+        if (bestOpt.isEmpty()) {
+            pp.setDiscountedPrice(null);
+        }
+
         return pp;
     }
+
 }

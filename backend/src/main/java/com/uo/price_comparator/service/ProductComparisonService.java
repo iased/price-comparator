@@ -4,7 +4,6 @@ import com.uo.price_comparator.dto.OfferDto;
 import com.uo.price_comparator.dto.ProductComparisonDto;
 import com.uo.price_comparator.model.Product;
 import com.uo.price_comparator.model.ProductPrice;
-import com.uo.price_comparator.repository.DiscountRepository;
 import com.uo.price_comparator.repository.ProductPriceRepository;
 import org.springframework.stereotype.Service;
 
@@ -17,15 +16,12 @@ import java.util.stream.Collectors;
 @Service
 public class ProductComparisonService {
     private final ProductPriceRepository productPriceRepository;
-    private final DiscountRepository discountRepository;
-    private final ProductPriceService productPriceService;
+    private final DiscountService discountService;
 
     public ProductComparisonService(ProductPriceRepository productPriceRepository,
-                                    DiscountRepository discountRepository,
-                                    ProductPriceService productPriceService){
+                                    DiscountService discountService) {
         this.productPriceRepository = productPriceRepository;
-        this.discountRepository = discountRepository;
-        this.productPriceService = productPriceService;
+        this.discountService = discountService;
     }
 
     public List<ProductComparisonDto> getComparison() {
@@ -57,8 +53,6 @@ public class ProductComparisonService {
             List<OfferDto> offers = new ArrayList<>();
 
             for (ProductPrice pp : pricesForProduct) {
-                pp = productPriceService.applyActiveDiscount(pp);
-
                 OfferDto offer = new OfferDto();
                 offer.setStore(pp.getSupermarket().getName());
                 offer.setPrice(pp.getPrice());
@@ -79,17 +73,15 @@ public class ProductComparisonService {
                     }
                 }
 
-                // active discount, if any
-                discountRepository.findActiveDiscount(
-                        product.getId(),
-                        pp.getSupermarket().getId(),
-                        today
-                ).ifPresent(d -> {
-                    Integer percent = d.getPercentageOfDiscount() == null
-                            ? null
-                            : d.getPercentageOfDiscount();
-                    offer.setDiscountPercent(percent);
+                discountService.getBestActiveDiscount(pp, today).ifPresent(d -> {
+                    offer.setDiscountPercent(d.getPercentageOfDiscount());
 
+                    double discounted = discountService.applyDiscount(pp.getPrice(), d.getPercentageOfDiscount());
+                    offer.setDiscountedPrice(discounted);
+
+                    if (product.getQuantity() != 0) {
+                        offer.setDiscountedPricePerUnit(discounted / product.getQuantity());
+                    }
                 });
 
                 offers.add(offer);
