@@ -1,5 +1,6 @@
 package com.uo.price_comparator.controller;
 
+import com.uo.price_comparator.dto.DiscountDto;
 import com.uo.price_comparator.model.Discount;
 import com.uo.price_comparator.service.DiscountService;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -19,18 +20,13 @@ public class DiscountController {
         this.discountService = discountService;
     }
 
-    @GetMapping
-    public List<Discount> getAllDiscounts(){
-        return discountService.getAllDiscounts();
-    }
-
     @GetMapping("/today")
-    public List<Discount> getDiscountsToday() {
+    public List<DiscountDto> getDiscountsToday() {
         return discountService.getDiscountsToday();
     }
 
     @GetMapping("/this-week")
-    public List<Discount> getDiscountsThisWeek() {
+    public List<DiscountDto> getDiscountsThisWeek() {
         return discountService.getDiscountsThisWeek();
     }
 }

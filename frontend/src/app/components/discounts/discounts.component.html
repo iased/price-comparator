@@ -1,52 +1,70 @@
-<div class="page">
-
-<div class="discounts-page">
+<div class="discounts-page" *ngIf="vm$ | async as vm">
 
   <div class="discount-switcher">
-    <button *ngFor="let t of discountTypes" (click)="selectDiscountType(t)" [class.active]="t === selectedDiscountsType"> {{ t }} </button>
+    <button
+      *ngFor="let t of discountTypes"
+      (click)="selectDiscountType(t)"
+      [class.active]="t === vm.selectedType">
+      {{ t }}
+    </button>
   </div>
 
-  <div *ngIf="loading" class="state">Loading discounts…</div>
-  <div *ngIf="error" class="state error">{{ error }}</div>
+  <div *ngIf="vm.loading" class="state">Loading discounts…</div>
+  <div *ngIf="vm.error" class="state error">{{ vm.error }}</div>
 
-  <div class="discounts-grid" *ngIf="!loading && !error">
-    <div class="discount-card" *ngFor="let d of discounts">
+  <div class="meta" *ngIf="!vm.loading && !vm.error">
+    {{ vm.total }} discounts found
+  </div>
 
-      <div class="card-thumb">
-        <div class="thumb-placeholder">
-          {{ (d.product?.name || '?')[0] | uppercase }}
-        </div>
+  <div class="discounts-grid" *ngIf="!vm.loading && !vm.error">
+    <div class="discount-card" *ngFor="let d of vm.discounts; trackBy: trackByDiscount">
+      <div class="discount-thumb">
+        <img *ngIf="d.productImageUrl; else placeholder"
+          [src]="d.productImageUrl"
+          [alt]="d.productName" 
+        />
+        <ng-template #placeholder>
+          <div class="thumb-placeholder">{{ (d.productName || '?')[0] | uppercase }}</div>
+        </ng-template>
       </div>
 
-      <div class="card-main">
-        <div class="discount-name">
-          {{ d.product?.name | titlecase }}
+      <div class="discount-body">
+        <div class="discount-top">
+          <div>
+            <div class="discount-name">{{ d.productName | titlecase }}</div>
+            <div class="discount-brand">{{ d.productBrand | titlecase}}</div>
+          </div>
+
+          <span class="store-pill" [ngClass]="'store-' + d.supermarketName.toLowerCase()">
+            {{ d.supermarketName }}
+          </span>
         </div>
 
-        <div class="discount-brand">
-          {{ d.product?.brand | titlecase }}
+        <div class="price-row">
+          <span class="old-price">
+            {{ d.originalPrice | number:'1.2-2' }} RON
+          </span>
+
+          <span class="new-price">
+            {{ d.discountedPrice | number:'1.2-2' }} RON
+          </span>
+          
+          <span class="percent-pill">
+            -{{ d.percentageOfDiscount }}%
+          </span>
         </div>
 
-        <div class="discount-percentage">
-          {{ d.percentageOfDiscount }}% OFF
+        <div class="discount-footer">
+          <div class="discount-valid">
+            Valabilitate: {{ d.fromDate | date:'d MMM' }} – {{ d.toDate | date:'d MMM' }}
+          </div>
+
+          <div class="ends-label">
+            <span>⏱ {{ d.endsLabel }}</span>
+          </div>
         </div>
 
-        <div class="discount-store">
-          {{ d.supermarket?.name }}
-        </div>
-
-        <div class="discount-dates">
-          Valabil din data de {{ d.fromDate | date:'dd.MM.yyyy'}} până la {{ d.toDate | date:'dd.MM.yyyy' }}
-        </div>
       </div>
-
-      <div class="card-meta">
-        <div class="meta-tag">
-          NEW
-        </div>
-      </div>
-
     </div>
   </div>
-</div>
 </div>

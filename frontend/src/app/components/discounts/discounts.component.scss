@@ -1,158 +1,215 @@
 .discounts-page {
-  max-width: 960px;
-  margin: 0 0 40px 0;
-  padding-left: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-/* Today / This Week switcher – same style as store switcher */
 .discount-switcher {
   display: flex;
   gap: 8px;
   margin: 16px 0 24px;
+
+  button {
+    padding: 6px 18px;
+    border-radius: 999px;
+    border: 1px solid #ddd;
+    background: #fff;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  button.active {
+    background: #000;
+    color: #fff;
+    border-color: #000;
+  }
 }
 
-.discount-switcher button {
-  padding: 6px 18px;
-  border-radius: 999px;
-  border: 1px solid #ddd;
-  background: #fff;
-  cursor: pointer;
-  font-size: 14px;
+.meta {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.5rem;
 }
 
-.discount-switcher button.active {
-  background: #000;
-  color: #fff;
-  border-color: #000;
-}
-
-/* loading / error text */
 .state {
   font-size: 14px;
   margin-bottom: 12px;
+
+  &.error {
+    color: #c0392b;
+  }
 }
 
-.state.error {
-  color: #c0392b;
-}
-
-/* cards grid */
 .discounts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 16px;
+  gap: 24px;
+  grid-template-columns: 1fr;
 }
 
-/* individual card */
+@media (min-width: 768px) {
+  .discounts-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 .discount-card {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 12px;
-  padding: 12px 16px;
-  border-radius: 18px;
-  border: 1px solid #f0f0f0;
   background: #fff;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+  border-radius: 1rem;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 1rem;
+
+  padding: 1rem;
+  align-items: start;
+  position: relative;
 }
 
-/* left thumb */
-.card-thumb {
+.discount-thumb {
+  width: 96px;
+  height: 96px;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: #f2f4f8;
   display: flex;
   align-items: center;
   justify-content: center;
-}
 
-.card-thumb img {
-  width: 72px;
-  height: 72px;
-  border-radius: 12px;
-  object-fit: cover;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 }
 
 .thumb-placeholder {
-  width: 72px;
-  height: 72px;
-  border-radius: 12px;
-  background: #f5f5f8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
   font-weight: 600;
   font-size: 24px;
+  color: #111;
 }
 
-/* middle content */
-.card-main {
+.discount-body {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.discount-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.4rem;
 }
 
 .discount-name {
   font-weight: 600;
-  font-size: 15px;
+  line-height: 1.2;
 }
 
 .discount-brand {
-  font-size: 13px;
+  font-size: 0.85rem;
   color: #666;
 }
 
-/* red percentage pill */
-.discount-percentage {
-  display: inline-block;
-  align-self: flex-start;
-  margin: 6px 0;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: #d8193f;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 600;
+.store-pill {
+  padding: 0;
+  border-radius: 0;
+  background: none !important;
+  border: 0;
+  color: #6b7280;
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+.discount-prices {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+}
+
+.price-row {
+  display: grid;
+  grid-template-columns: max-content max-content 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 10px;
+  row-gap: 4px;
+  align-items: baseline;
+}
+
+.old-price {
+  grid-column: 1;
+  grid-row: 1;
+  color: #9aa0a6;
+  text-decoration: line-through;
+  font-size: 14px;
   white-space: nowrap;
 }
 
-.discount-store {
-  font-size: 13px;
-  color: #666;
+.new-price {
+  grid-column: 2;
+  grid-row: 1;
+  color: #e11d48;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.01em;
 }
 
-.discount-dates {
+.percent-pill {
+  grid-column: 1 / 3;
+  grid-row: 2;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid #ffd4da;
+  background: #ffe6ea;
+  color: #b00020;
   font-size: 12px;
-  color: #888;
+  line-height: 1;
+  white-space: nowrap;
+  margin-top: 2px;
 }
 
-/* right meta column */
-.card-meta {
+.discount-pill {
+  align-self: flex-start;
+  background: #e11d48;
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.discount-footer{
+  margin-top: 10px;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
   gap: 6px;
 }
 
-.meta-tag {
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: #f1f3f6;
-  font-size: 11px;
-  font-weight: 600;
-  color: #555;
+.discount-valid {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 0;
 }
 
-.meta-time {
+.ends-label{
   font-size: 12px;
-  color: #888;
+  color: #6b7280;
+  white-space: nowrap;
 }
 
-/* small-screen tweak: stack columns when very narrow */
-@media (max-width: 640px) {
-  .discount-card {
-    grid-template-columns: auto 1fr;
-    grid-template-rows: auto auto;
-  }
-
-  .card-meta {
-    grid-column: 2 / 3;
-    grid-row: 1 / 2;
+@media (min-width: 520px){
+  .discount-footer{
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
   }
 }

@@ -1,9 +1,11 @@
 package com.uo.price_comparator.repository;
 
 import com.uo.price_comparator.PriceComparatorApplication;
+import com.uo.price_comparator.dto.DiscountDto;
 import com.uo.price_comparator.model.Discount;
 import com.uo.price_comparator.model.Product;
 import com.uo.price_comparator.model.Supermarket;
+import com.uo.price_comparator.model.ProductPrice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,37 +19,82 @@ import java.util.Optional;
 public interface DiscountRepository extends JpaRepository<Discount, Long> {
 
     @Query("""
-        SELECT d FROM Discount d
-        WHERE d.product = :product
-          AND d.supermarket = :supermarket
-          AND :priceDate BETWEEN d.fromDate AND d.toDate
-    """)
-    List<Discount> findActiveDiscounts(@Param("product") Product product,
-                                       @Param("supermarket") Supermarket supermarket,
-                                       @Param("priceDate") LocalDate priceDate);
+    select d from Discount d
+    where d.product.id = :productId
+      and d.supermarket.id = :supermarketId
+      and :date between d.fromDate and d.toDate
+    order by d.percentageOfDiscount desc, d.toDate asc
+""")
+    List<Discount> findActiveDiscountsOrdered(@Param("productId") Long productId,
+                                              @Param("supermarketId") Long supermarketId,
+                                              @Param("date") LocalDate date);
 
     @Query("""
-        SELECT d FROM Discount d
-        WHERE d.product.id = :productId
-          AND d.supermarket.id = :supermarketId
-          AND :date BETWEEN d.fromDate AND d.toDate
-    """)
-    Optional<Discount> findActiveDiscount(@Param("productId") Long productId,
-                                          @Param("supermarketId") Long supermarketId,
-                                          @Param("date") LocalDate date);
+    select new com.uo.price_comparator.dto.DiscountDto(
+        d.id,
+        p.name,
+        p.brand,
+        p.imageUrl,
+        s.name,
+
+        pp.price,
+        pp.price * (100 - d.percentageOfDiscount) / 100.0,
+
+        d.percentageOfDiscount,
+        d.fromDate,
+        d.toDate
+    )
+    from Discount d
+    join d.product p
+    join d.supermarket s
+    join ProductPrice pp
+      on pp.product = d.product
+     and pp.supermarket = d.supermarket
+     and pp.priceDate = (
+        select max(pp2.priceDate)
+        from ProductPrice pp2
+        where pp2.product = d.product
+         and pp2.supermarket = d.supermarket
+         and pp2.priceDate <= :today
+     )
+    where :today between d.fromDate and d.toDate
+    order by d.percentageOfDiscount desc, d.toDate asc
+   """)
+    List<DiscountDto> findDiscountsForToday(@Param("today") LocalDate today);
 
     @Query("""
-        SELECT d FROM Discount d
-        WHERE :today BETWEEN d.fromDate AND d.toDate
+        select new com.uo.price_comparator.dto.DiscountDto(
+            d.id,
+            p.name,
+            p.brand,
+            p.imageUrl,
+            s.name,
+            
+            pp.price,
+            pp.price * (100 - d.percentageOfDiscount) / 100.0,
+        
+            d.percentageOfDiscount,
+            d.fromDate,
+            d.toDate
+        )
+        from Discount d
+        join d.product p
+        join d.supermarket s
+        join ProductPrice pp
+          on pp.product = d.product
+         and pp.supermarket = d.supermarket
+         and pp.priceDate = (
+            select max(pp2.priceDate)
+            from ProductPrice pp2
+            where pp2.product = d.product
+             and pp2.supermarket = d.supermarket
+             and pp2.priceDate <= :today
+         )
+        where d.fromDate <= :endOfWeek
+          and d.toDate >= :startOfWeek
+        order by d.percentageOfDiscount desc, d.toDate asc
     """)
-    List<Discount> findDiscountsForToday(@Param("today") LocalDate today);
-
-    @Query("""
-        SELECT d FROM Discount d
-        WHERE d.fromDate <= :endOfWeek AND d.toDate >= :startOfWeek
-    """)
-    List<Discount> findDiscountsForThisWeek(@Param("startOfWeek") LocalDate startOfWeek,
-                                        @Param("endOfWeek") LocalDate endOfWeek);
-
-
+    List<DiscountDto> findDiscountsForThisWeek(@Param("startOfWeek") LocalDate startOfWeek,
+                                               @Param("endOfWeek") LocalDate endOfWeek,
+                                               @Param("today") LocalDate today);
 }
