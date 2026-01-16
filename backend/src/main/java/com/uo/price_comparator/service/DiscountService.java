@@ -7,6 +7,8 @@ import com.uo.price_comparator.model.ProductPrice;
 import com.uo.price_comparator.repository.DiscountRepository;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
@@ -44,8 +46,12 @@ public class DiscountService {
                 .findFirst();
     }
 
-    public double applyDiscount(double price, Integer percent) {
-        if (percent == null) return price;
-        return price * (1 - percent / 100.0);
+    public BigDecimal applyDiscount(BigDecimal price, int percent) {
+        BigDecimal multiplier = BigDecimal.ONE.subtract(
+                BigDecimal.valueOf(percent)
+                        .divide(BigDecimal.valueOf(100), 6, RoundingMode.HALF_UP)
+        );
+
+        return price.multiply(multiplier).setScale(2, RoundingMode.HALF_UP);
     }
 }

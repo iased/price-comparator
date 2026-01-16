@@ -31,19 +31,17 @@ public interface DiscountRepository extends JpaRepository<Discount, Long> {
 
     @Query("""
     select new com.uo.price_comparator.dto.DiscountDto(
-        d.id,
-        p.name,
-        p.brand,
-        p.imageUrl,
-        s.name,
-
-        pp.price,
-        pp.price * (100 - d.percentageOfDiscount) / 100.0,
-
-        d.percentageOfDiscount,
-        d.fromDate,
-        d.toDate
-    )
+                  d.id,
+                  p.name,
+                  p.brand,
+                  p.imageUrl,
+                  s.name,
+                  pp.price,
+                  (pp.price * (100 - d.percentageOfDiscount) / 100),
+                  d.percentageOfDiscount,
+                  d.fromDate,
+                  d.toDate
+              )
     from Discount d
     join d.product p
     join d.supermarket s
@@ -64,19 +62,17 @@ public interface DiscountRepository extends JpaRepository<Discount, Long> {
 
     @Query("""
         select new com.uo.price_comparator.dto.DiscountDto(
-            d.id,
-            p.name,
-            p.brand,
-            p.imageUrl,
-            s.name,
-            
-            pp.price,
-            pp.price * (100 - d.percentageOfDiscount) / 100.0,
-        
-            d.percentageOfDiscount,
-            d.fromDate,
-            d.toDate
-        )
+                     d.id,
+                     p.name,
+                     p.brand,
+                     p.imageUrl,
+                     s.name,
+                     pp.price,
+                     (pp.price * (100 - d.percentageOfDiscount) / 100),
+                     d.percentageOfDiscount,
+                     d.fromDate,
+                     d.toDate
+                 )
         from Discount d
         join d.product p
         join d.supermarket s

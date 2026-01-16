@@ -1,5 +1,6 @@
 package com.uo.price_comparator.dto;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public record DiscountDto(
@@ -9,8 +10,8 @@ public record DiscountDto(
         String productImageUrl,
         String supermarketName,
 
-        Double originalPrice,
-        Double discountedPrice,
+        BigDecimal originalPrice,
+        BigDecimal discountedPrice,
 
         Integer percentageOfDiscount,
         LocalDate fromDate,
