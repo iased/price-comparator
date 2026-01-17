@@ -1,12 +1,26 @@
   <div class="meta" *ngIf="filteredProducts.length">
-    {{ filteredProducts.length }} products found
+    {{ filteredProducts.length }} produse găsite
   </div>
 
-  <div *ngIf="loading" class="state">Loading…</div>
+  <div *ngIf="loading" class="state">Se încarcă…</div>
   <div *ngIf="error" class="state error">{{ error }}</div>
 
   <div class="product-list" *ngIf="!loading && !error">
     <div *ngFor="let product of filteredProducts" class="product-card">
+
+      <button
+        class="add-to-list-btn"
+        type="button"
+        (click)="addToList(product.productId)"
+        [disabled]="addingId === product.productId"
+        title="Adaugă în lista de cumpărături"
+      >
+        <span class="icon-swap" [class.show-check]="justAddedId === product.productId">
+          <span class="icon plus"><span class="glyph">➕</span></span>
+          <span class="icon check"><span class="glyph">✔️</span></span>
+        </span>
+      </button>
+
       <!-- left: image placeholder -->
       <div class="product-image">
         <img
@@ -39,7 +53,7 @@
         <!-- best price strip -->
         <div class="best-price-strip" *ngIf="product.bestOffer as bo">
           <div>
-            <div class="label">Best Price</div>
+            <div class="label">Cel mai bun preț</div>
 
             <div class="best-price-row">
               <div class="best-price-main">
@@ -63,12 +77,12 @@
               </ng-container>
 
               <ng-template #tieTpl>
-                Best at {{ best.length }} stores
+                Cel mai bun preț la {{ best.length }} magazine
               </ng-template>
             </div>
 
             <div *ngIf="best[0].discountPercent != null" class="discount-pill">
-              {{ best[0].discountPercent | number : '1.0-0' }}% OFF
+              -{{ best[0].discountPercent | number : '1.0-0' }}%
             </div>
           </div>
 
@@ -90,7 +104,7 @@
               </div>
 
               <ng-template #noDiscountTpl>
-                <div class="offer-old-price no-discount">No discount</div>
+                <div class="offer-old-price no-discount">Nu are reducere</div>
               </ng-template>
 
               <div class="offer-current-price">
@@ -110,7 +124,7 @@
                 *ngIf="isBestOffer(product, offer)"
                 class="pill pill-green"
               >
-                Best
+                Cel mai bun preț
               </span>
 
               <span

@@ -1,6 +1,6 @@
 -- Supermarkets
-INSERT INTO supermarkets (name) VALUES ('Lidl') ON CONFLICT (name) DO NOTHING;
-INSERT INTO supermarkets (name) VALUES ('Profi') ON CONFLICT (name) DO NOTHING;
+INSERT INTO supermarkets (name) VALUES ('Lidl')     ON CONFLICT (name) DO NOTHING;
+INSERT INTO supermarkets (name) VALUES ('Profi')    ON CONFLICT (name) DO NOTHING;
 INSERT INTO supermarkets (name) VALUES ('Kaufland') ON CONFLICT (name) DO NOTHING;
 
 -- Products
@@ -17,228 +17,649 @@ INSERT INTO products (name, brand, category, quantity, unit, image_url) VALUES
 ('apă plată', 'Aqua Carpatica', 'băuturi', 2, 'l', 'https://auchan.vtexassets.com/arquivos/ids/251147-1200-1200?v=638404767366930000&width=1200&height=1200&aspect=true')
 ON CONFLICT (name, brand, category, quantity, unit) DO NOTHING;
 
--- Product prices
-INSERT INTO product_prices (product_id, supermarket_id, price_date, price, currency) VALUES
--- Lidl
-(1, 1, '2025-11-01', 9.90, 'RON'),
-(2, 1, '2025-11-01', 10.50, 'RON'),
-(5, 1, '2025-11-01', 4.20, 'RON'),
-(5, 1, '2025-11-10', 5.10, 'RON'),
-(5, 1, '2025-11-14', 4.90, 'RON'),
-(9, 1, '2025-11-01', 5.80, 'RON'),
-(10, 1, '2025-11-01', 3.30, 'RON'),
+WITH
+s AS (
+  SELECT id, name FROM supermarkets
+),
+p AS (
+  SELECT id, name, brand, category, quantity, unit FROM products
+),
+price_rows AS (
+  -- Lidl
+  SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l') AS product_id,
+    (SELECT id FROM s WHERE name='Lidl') AS supermarket_id,
+    DATE '2025-11-01' AS price_date,
+    9.90::numeric AS price,
+    'RON'::text AS currency
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='iaurt grecesc' AND brand='Pilos' AND category='lactate' AND quantity=0.4 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2025-11-01', 10.50::numeric, 'RON'
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='pâine albă' AND brand='Lidl' AND category='panificație' AND quantity=500 AND unit='g'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2025-11-01', 4.20::numeric, 'RON'
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='pâine albă' AND brand='Lidl' AND category='panificație' AND quantity=500 AND unit='g'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2025-11-10', 5.10::numeric, 'RON'
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='pâine albă' AND brand='Lidl' AND category='panificație' AND quantity=500 AND unit='g'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2025-11-14', 4.90::numeric, 'RON'
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='zahăr tos' AND brand='Mărgăritar' AND category='alimente de bază' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2025-11-01', 5.80::numeric, 'RON'
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='apă plată' AND brand='Aqua Carpatica' AND category='băuturi' AND quantity=2 AND unit='l'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2025-11-01', 3.30::numeric, 'RON'
 
--- Profi
-(1, 2, '2025-11-01', 10.50, 'RON'),
-(3, 2, '2025-11-01', 13.20, 'RON'),
-(6, 2, '2025-11-01', 9.90, 'RON'),
-(9, 2, '2025-11-01', 6.10, 'RON'),
-(10, 2, '2025-11-01', 3.00, 'RON'),
+  -- Profi
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2025-11-01', 10.50::numeric, 'RON'
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='ouă mărimea M' AND brand='Profi' AND category='ouă' AND quantity=10 AND unit='buc'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2025-11-01', 13.20::numeric, 'RON'
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='roșii cherry' AND brand='Profi' AND category='legume și fructe' AND quantity=250 AND unit='g'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2025-11-01', 9.90::numeric, 'RON'
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='zahăr tos' AND brand='Mărgăritar' AND category='alimente de bază' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2025-11-01', 6.10::numeric, 'RON'
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='apă plată' AND brand='Aqua Carpatica' AND category='băuturi' AND quantity=2 AND unit='l'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2025-11-01', 3.00::numeric, 'RON'
 
--- Kaufland
-(1, 3, '2025-11-01', 9.60, 'RON'),
-(4, 3, '2025-11-01', 14.10, 'RON'),
-(7, 3, '2025-11-01', 27.90, 'RON'),
-(8, 3, '2025-11-01', 8.90, 'RON'),
-(10, 3, '2025-11-01', 3.10, 'RON')
+  -- Kaufland
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2025-11-01', 9.60::numeric, 'RON'
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='brânză telemea' AND brand='Kaufland' AND category='lactate' AND quantity=0.3 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2025-11-01', 14.10::numeric, 'RON'
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='piept de pui' AND brand='Kaufland' AND category='carne' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2025-11-01', 27.90::numeric, 'RON'
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='paste penne' AND brand='Barilla' AND category='paste făinoase' AND quantity=500 AND unit='g'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2025-11-01', 8.90::numeric, 'RON'
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='apă plată' AND brand='Aqua Carpatica' AND category='băuturi' AND quantity=2 AND unit='l'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2025-11-01', 3.10::numeric, 'RON'
+)
+INSERT INTO product_prices (product_id, supermarket_id, price_date, price, currency)
+SELECT product_id, supermarket_id, price_date, price, currency
+FROM price_rows
+WHERE product_id IS NOT NULL AND supermarket_id IS NOT NULL
 ON CONFLICT (product_id, supermarket_id, price_date) DO NOTHING;
 
 -- Discounts
-INSERT INTO discounts (product_id, supermarket_id, from_date, to_date, percentage_of_discount) VALUES
--- Lidl (supermarket_id = 1)
--- Products sold at Lidl: 1, 2, 5, 9, 10
+WITH
+s AS (
+  SELECT id, name FROM supermarkets
+),
+p AS (
+  SELECT id, name, brand, category, quantity, unit FROM products
+),
+d AS (
+  -- Lidl
+  -- November 2025
+  SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l') AS product_id,
+    (SELECT id FROM s WHERE name='Lidl') AS supermarket_id,
+    DATE '2025-11-03' AS from_date,
+    DATE '2025-11-09' AS to_date,
+    10 AS percentage_of_discount
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='iaurt grecesc' AND brand='Pilos' AND category='lactate' AND quantity=0.4 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2025-11-03', DATE '2025-11-09', 10
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='pâine albă' AND brand='Lidl' AND category='panificație' AND quantity=500 AND unit='g'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2025-11-10', DATE '2025-11-16', 15
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='zahăr tos' AND brand='Mărgăritar' AND category='alimente de bază' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2025-11-24', DATE '2025-11-30', 5
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='apă plată' AND brand='Aqua Carpatica' AND category='băuturi' AND quantity=2 AND unit='l'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2025-11-24', DATE '2025-11-30', 7
 
--- November 2025
-(1, 1, '2025-11-03', '2025-11-09', 10),
-(2, 1, '2025-11-03', '2025-11-09', 10),
+  -- December 2025
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2025-12-01', DATE '2025-12-07', 10
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='iaurt grecesc' AND brand='Pilos' AND category='lactate' AND quantity=0.4 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2025-12-08', DATE '2025-12-14', 8
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='pâine albă' AND brand='Lidl' AND category='panificație' AND quantity=500 AND unit='g'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2025-12-08', DATE '2025-12-14', 15
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='zahăr tos' AND brand='Mărgăritar' AND category='alimente de bază' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2025-12-15', DATE '2025-12-21', 5
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='apă plată' AND brand='Aqua Carpatica' AND category='băuturi' AND quantity=2 AND unit='l'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2025-12-15', DATE '2025-12-21', 7
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2025-12-22', DATE '2025-12-28', 10
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='iaurt grecesc' AND brand='Pilos' AND category='lactate' AND quantity=0.4 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2025-12-22', DATE '2025-12-28', 8
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='pâine albă' AND brand='Lidl' AND category='panificație' AND quantity=500 AND unit='g'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2025-12-22', DATE '2025-12-28', 15
 
-(5, 1, '2025-11-10', '2025-11-16', 15),
+  -- January 2026
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2025-12-29', DATE '2026-01-04', 12
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='zahăr tos' AND brand='Mărgăritar' AND category='alimente de bază' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2025-12-29', DATE '2026-01-04', 7
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='apă plată' AND brand='Aqua Carpatica' AND category='băuturi' AND quantity=2 AND unit='l'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2025-12-29', DATE '2026-01-04', 9
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='iaurt grecesc' AND brand='Pilos' AND category='lactate' AND quantity=0.4 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2026-01-05', DATE '2026-01-11', 10
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='pâine albă' AND brand='Lidl' AND category='panificație' AND quantity=500 AND unit='g'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2026-01-05', DATE '2026-01-11', 18
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='iaurt grecesc' AND brand='Pilos' AND category='lactate' AND quantity=0.4 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2026-01-12', DATE '2026-01-18', 18
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='pâine albă' AND brand='Lidl' AND category='panificație' AND quantity=500 AND unit='g'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2026-01-12', DATE '2026-01-18', 18
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='zahăr tos' AND brand='Mărgăritar' AND category='alimente de bază' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2026-01-12', DATE '2026-01-18', 7
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='apă plată' AND brand='Aqua Carpatica' AND category='băuturi' AND quantity=2 AND unit='l'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2026-01-12', DATE '2026-01-18', 9
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='iaurt grecesc' AND brand='Pilos' AND category='lactate' AND quantity=0.4 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2026-01-19', DATE '2026-01-25', 10
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='pâine albă' AND brand='Lidl' AND category='panificație' AND quantity=500 AND unit='g'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2026-01-19', DATE '2026-01-25', 18
 
-(9, 1, '2025-11-24', '2025-11-30', 5),
-(10, 1, '2025-11-24', '2025-11-30', 7),
--- December 2025
-(1, 1, '2025-12-01', '2025-12-07', 10),
+  -- February 2026
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='zahăr tos' AND brand='Mărgăritar' AND category='alimente de bază' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2026-01-26', DATE '2026-02-01', 7
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='apă plată' AND brand='Aqua Carpatica' AND category='băuturi' AND quantity=2 AND unit='l'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2026-01-26', DATE '2026-02-01', 9
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2026-02-02', DATE '2026-02-08', 11
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='iaurt grecesc' AND brand='Pilos' AND category='lactate' AND quantity=0.4 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2026-02-02', DATE '2026-02-08', 9
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='pâine albă' AND brand='Lidl' AND category='panificație' AND quantity=500 AND unit='g'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2026-02-09', DATE '2026-02-15', 16
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='zahăr tos' AND brand='Mărgăritar' AND category='alimente de bază' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2026-02-09', DATE '2026-02-15', 6
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='apă plată' AND brand='Aqua Carpatica' AND category='băuturi' AND quantity=2 AND unit='l'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2026-02-16', DATE '2026-02-22', 8
 
-(2, 1, '2025-12-08', '2025-12-14', 8),
-(5, 1, '2025-12-08', '2025-12-14', 15),
+  -- March 2026
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2026-02-23', DATE '2026-03-01', 11
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='iaurt grecesc' AND brand='Pilos' AND category='lactate' AND quantity=0.4 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2026-02-23', DATE '2026-03-01', 9
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='pâine albă' AND brand='Lidl' AND category='panificație' AND quantity=500 AND unit='g'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2026-02-23', DATE '2026-03-01', 16
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2026-03-02', DATE '2026-03-08', 13
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='iaurt grecesc' AND brand='Pilos' AND category='lactate' AND quantity=0.4 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2026-03-02', DATE '2026-03-08', 11
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='pâine albă' AND brand='Lidl' AND category='panificație' AND quantity=500 AND unit='g'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2026-03-09', DATE '2026-03-15', 20
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='zahăr tos' AND brand='Mărgăritar' AND category='alimente de bază' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2026-03-09', DATE '2026-03-15', 8
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='apă plată' AND brand='Aqua Carpatica' AND category='băuturi' AND quantity=2 AND unit='l'),
+    (SELECT id FROM s WHERE name='Lidl'),
+    DATE '2026-03-16', DATE '2026-03-22', 10
 
-(9, 1, '2025-12-15', '2025-12-21', 5),
-(10, 1, '2025-12-15', '2025-12-21', 7),
+  -- Profi
+  -- November 2025
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='ouă mărimea M' AND brand='Profi' AND category='ouă' AND quantity=10 AND unit='buc'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2025-11-17', DATE '2025-11-23', 8
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='roșii cherry' AND brand='Profi' AND category='legume și fructe' AND quantity=250 AND unit='g'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2025-11-24', DATE '2025-11-30', 12
 
-(1, 1, '2025-12-22', '2025-12-28', 10),
-(2, 1, '2025-12-22', '2025-12-28', 8),
-(5, 1, '2025-12-22', '2025-12-28', 15),
--- January 2026
-(1, 1, '2025-12-29', '2026-01-04', 12),
-(9, 1, '2025-12-29', '2026-01-04', 7),
-(10, 1, '2025-12-29', '2026-01-04', 9),
+  -- December 2025
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2025-12-01', DATE '2025-12-07', 9
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='ouă mărimea M' AND brand='Profi' AND category='ouă' AND quantity=10 AND unit='buc'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2025-12-01', DATE '2025-12-07', 7
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='roșii cherry' AND brand='Profi' AND category='legume și fructe' AND quantity=250 AND unit='g'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2025-12-01', DATE '2025-12-07', 10
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='zahăr tos' AND brand='Mărgăritar' AND category='alimente de bază' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2025-12-01', DATE '2025-12-07', 5
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='apă plată' AND brand='Aqua Carpatica' AND category='băuturi' AND quantity=2 AND unit='l'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2025-12-01', DATE '2025-12-07', 6
 
-(2, 1, '2026-01-05', '2026-01-11', 10),
-(5, 1, '2026-01-05', '2026-01-11', 18),
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2025-12-08', DATE '2025-12-14', 11
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='roșii cherry' AND brand='Profi' AND category='legume și fructe' AND quantity=250 AND unit='g'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2025-12-08', DATE '2025-12-14', 12
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='apă plată' AND brand='Aqua Carpatica' AND category='băuturi' AND quantity=2 AND unit='l'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2025-12-08', DATE '2025-12-14', 8
 
-(5, 1, '2026-01-12', '2026-01-18', 18),
-(9, 1, '2026-01-12', '2026-01-18', 7),
-(10, 1, '2026-01-12', '2026-01-18', 9),
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='ouă mărimea M' AND brand='Profi' AND category='ouă' AND quantity=10 AND unit='buc'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2025-12-15', DATE '2025-12-21', 8
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='zahăr tos' AND brand='Mărgăritar' AND category='alimente de bază' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2025-12-15', DATE '2025-12-21', 6
 
-(2, 1, '2026-01-19', '2026-01-25', 10),
-(5, 1, '2026-01-19', '2026-01-25', 18),
--- February 2026
-(9, 1, '2026-01-26', '2026-02-01', 7),
-(10, 1, '2026-01-26', '2026-02-01', 9),
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2025-12-22', DATE '2025-12-28', 10
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='ouă mărimea M' AND brand='Profi' AND category='ouă' AND quantity=10 AND unit='buc'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2025-12-22', DATE '2025-12-28', 9
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='roșii cherry' AND brand='Profi' AND category='legume și fructe' AND quantity=250 AND unit='g'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2025-12-22', DATE '2025-12-28', 14
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='apă plată' AND brand='Aqua Carpatica' AND category='băuturi' AND quantity=2 AND unit='l'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2025-12-22', DATE '2025-12-28', 7
 
-(1, 1, '2026-02-02', '2026-02-08', 11),
-(2, 1, '2026-02-02', '2026-02-08', 9),
+  -- January 2026
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2025-12-29', DATE '2026-01-04', 12
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='roșii cherry' AND brand='Profi' AND category='legume și fructe' AND quantity=250 AND unit='g'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2025-12-29', DATE '2026-01-04', 13
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='zahăr tos' AND brand='Mărgăritar' AND category='alimente de bază' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2025-12-29', DATE '2026-01-04', 7
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='ouă mărimea M' AND brand='Profi' AND category='ouă' AND quantity=10 AND unit='buc'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-01-05', DATE '2026-01-11', 8
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='apă plată' AND brand='Aqua Carpatica' AND category='băuturi' AND quantity=2 AND unit='l'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-01-05', DATE '2026-01-11', 9
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-01-12', DATE '2026-01-18', 11
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='roșii cherry' AND brand='Profi' AND category='legume și fructe' AND quantity=250 AND unit='g'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-01-12', DATE '2026-01-18', 15
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='zahăr tos' AND brand='Mărgăritar' AND category='alimente de bază' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-01-12', DATE '2026-01-18', 6
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-01-19', DATE '2026-01-25', 10
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='ouă mărimea M' AND brand='Profi' AND category='ouă' AND quantity=10 AND unit='buc'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-01-19', DATE '2026-01-25', 9
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='apă plată' AND brand='Aqua Carpatica' AND category='băuturi' AND quantity=2 AND unit='l'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-01-19', DATE '2026-01-25', 8
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='roșii cherry' AND brand='Profi' AND category='legume și fructe' AND quantity=250 AND unit='g'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-01-26', DATE '2026-02-01', 12
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='zahăr tos' AND brand='Mărgăritar' AND category='alimente de bază' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-01-26', DATE '2026-02-01', 5
 
-(5, 1, '2026-02-09', '2026-02-15', 16),
-(9, 1, '2026-02-09', '2026-02-15', 6),
+  -- February 2026
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-02-02', DATE '2026-02-08', 10
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='ouă mărimea M' AND brand='Profi' AND category='ouă' AND quantity=10 AND unit='buc'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-02-02', DATE '2026-02-08', 8
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='apă plată' AND brand='Aqua Carpatica' AND category='băuturi' AND quantity=2 AND unit='l'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-02-02', DATE '2026-02-08', 8
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='roșii cherry' AND brand='Profi' AND category='legume și fructe' AND quantity=250 AND unit='g'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-02-09', DATE '2026-02-15', 13
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='zahăr tos' AND brand='Mărgăritar' AND category='alimente de bază' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-02-09', DATE '2026-02-15', 6
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-02-16', DATE '2026-02-22', 11
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='ouă mărimea M' AND brand='Profi' AND category='ouă' AND quantity=10 AND unit='buc'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-02-16', DATE '2026-02-22', 9
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='roșii cherry' AND brand='Profi' AND category='legume și fructe' AND quantity=250 AND unit='g'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-02-16', DATE '2026-02-22', 14
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='apă plată' AND brand='Aqua Carpatica' AND category='băuturi' AND quantity=2 AND unit='l'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-02-16', DATE '2026-02-22', 9
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-02-23', DATE '2026-03-01', 12
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='zahăr tos' AND brand='Mărgăritar' AND category='alimente de bază' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-02-23', DATE '2026-03-01', 7
 
-(10, 1, '2026-02-16', '2026-02-22', 8),
--- March 2026
-(1, 1, '2026-02-23', '2026-03-01', 11),
-(2, 1, '2026-02-23', '2026-03-01', 9),
-(5, 1, '2026-02-23', '2026-03-01', 16),
+  -- March 2026
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='ouă mărimea M' AND brand='Profi' AND category='ouă' AND quantity=10 AND unit='buc'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-03-02', DATE '2026-03-08', 9
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='roșii cherry' AND brand='Profi' AND category='legume și fructe' AND quantity=250 AND unit='g'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-03-02', DATE '2026-03-08', 15
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='apă plată' AND brand='Aqua Carpatica' AND category='băuturi' AND quantity=2 AND unit='l'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-03-02', DATE '2026-03-08', 9
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-03-09', DATE '2026-03-15', 11
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='zahăr tos' AND brand='Mărgăritar' AND category='alimente de bază' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-03-09', DATE '2026-03-15', 6
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='ouă mărimea M' AND brand='Profi' AND category='ouă' AND quantity=10 AND unit='buc'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-03-16', DATE '2026-03-22', 8
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='roșii cherry' AND brand='Profi' AND category='legume și fructe' AND quantity=250 AND unit='g'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-03-16', DATE '2026-03-22', 13
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='apă plată' AND brand='Aqua Carpatica' AND category='băuturi' AND quantity=2 AND unit='l'),
+    (SELECT id FROM s WHERE name='Profi'),
+    DATE '2026-03-16', DATE '2026-03-22', 8
 
-(1, 1, '2026-03-02', '2026-03-08', 13),
-(2, 1, '2026-03-02', '2026-03-08', 11),
+  -- Kaufland
+  -- November 2025
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='piept de pui' AND brand='Kaufland' AND category='carne' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2025-11-05', DATE '2025-11-11', 10
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='paste penne' AND brand='Barilla' AND category='paste făinoase' AND quantity=500 AND unit='g'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2025-11-12', DATE '2025-11-18', 7
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2025-11-19', DATE '2025-11-25', 9
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='brânză telemea' AND brand='Kaufland' AND category='lactate' AND quantity=0.3 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2025-11-19', DATE '2025-11-25', 8
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='apă plată' AND brand='Aqua Carpatica' AND category='băuturi' AND quantity=2 AND unit='l'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2025-11-19', DATE '2025-11-25', 7
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='piept de pui' AND brand='Kaufland' AND category='carne' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2025-11-26', DATE '2025-12-02', 11
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='paste penne' AND brand='Barilla' AND category='paste făinoase' AND quantity=500 AND unit='g'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2025-11-26', DATE '2025-12-02', 8
 
-(5, 1, '2026-03-09', '2026-03-15', 20),
-(9, 1, '2026-03-09', '2026-03-15', 8),
+  -- December 2025
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2025-12-03', DATE '2025-12-09', 10
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='brânză telemea' AND brand='Kaufland' AND category='lactate' AND quantity=0.3 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2025-12-03', DATE '2025-12-09', 9
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='piept de pui' AND brand='Kaufland' AND category='carne' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2025-12-03', DATE '2025-12-09', 12
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='apă plată' AND brand='Aqua Carpatica' AND category='băuturi' AND quantity=2 AND unit='l'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2025-12-03', DATE '2025-12-09', 8
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='paste penne' AND brand='Barilla' AND category='paste făinoase' AND quantity=500 AND unit='g'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2025-12-10', DATE '2025-12-16', 9
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2025-12-17', DATE '2025-12-23', 11
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='brânză telemea' AND brand='Kaufland' AND category='lactate' AND quantity=0.3 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2025-12-17', DATE '2025-12-23', 10
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='piept de pui' AND brand='Kaufland' AND category='carne' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2025-12-24', DATE '2025-12-30', 13
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='apă plată' AND brand='Aqua Carpatica' AND category='băuturi' AND quantity=2 AND unit='l'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2025-12-24', DATE '2025-12-30', 9
 
-(10, 1, '2026-03-16', '2026-03-22', 10),
+  -- January 2026
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2025-12-31', DATE '2026-01-06', 12
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='paste penne' AND brand='Barilla' AND category='paste făinoase' AND quantity=500 AND unit='g'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2025-12-31', DATE '2026-01-06', 10
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='brânză telemea' AND brand='Kaufland' AND category='lactate' AND quantity=0.3 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2026-01-07', DATE '2026-01-13', 9
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='piept de pui' AND brand='Kaufland' AND category='carne' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2026-01-07', DATE '2026-01-13', 14
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='apă plată' AND brand='Aqua Carpatica' AND category='băuturi' AND quantity=2 AND unit='l'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2026-01-14', DATE '2026-01-20', 8
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2026-01-21', DATE '2026-01-27', 10
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='piept de pui' AND brand='Kaufland' AND category='carne' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2026-01-21', DATE '2026-01-27', 13
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='paste penne' AND brand='Barilla' AND category='paste făinoase' AND quantity=500 AND unit='g'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2026-01-28', DATE '2026-02-03', 8
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='brânză telemea' AND brand='Kaufland' AND category='lactate' AND quantity=0.3 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2026-01-28', DATE '2026-02-03', 8
 
--- Profi (supermarket_id = 2)
--- Products sold at Profi: 1, 3, 6, 9, 10
-(3, 2, '2025-11-17', '2025-11-23', 8),
+  -- February 2026
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2026-02-04', DATE '2026-02-10', 11
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='piept de pui' AND brand='Kaufland' AND category='carne' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2026-02-04', DATE '2026-02-10', 15
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='apă plată' AND brand='Aqua Carpatica' AND category='băuturi' AND quantity=2 AND unit='l'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2026-02-11', DATE '2026-02-17', 9
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='paste penne' AND brand='Barilla' AND category='paste făinoase' AND quantity=500 AND unit='g'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2026-02-11', DATE '2026-02-17', 9
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='brânză telemea' AND brand='Kaufland' AND category='lactate' AND quantity=0.3 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2026-02-18', DATE '2026-02-24', 9
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2026-02-25', DATE '2026-03-03', 10
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='piept de pui' AND brand='Kaufland' AND category='carne' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2026-02-25', DATE '2026-03-03', 13
 
-(6, 2, '2025-11-24', '2025-11-30', 12),
-
--- December 2025
-(1, 2, '2025-12-01', '2025-12-07', 9),
-(3, 2, '2025-12-01', '2025-12-07', 7),
-(6, 2, '2025-12-01', '2025-12-07', 10),
-(9, 2, '2025-12-01', '2025-12-07', 5),
-(10, 2, '2025-12-01', '2025-12-07', 6),
-
-(1, 2, '2025-12-08', '2025-12-14', 11),
-(6, 2, '2025-12-08', '2025-12-14', 12),
-(10, 2, '2025-12-08', '2025-12-14', 8),
-
-(3, 2, '2025-12-15', '2025-12-21', 8),
-(9, 2, '2025-12-15', '2025-12-21', 6),
-
-(1, 2, '2025-12-22', '2025-12-28', 10),
-(3, 2, '2025-12-22', '2025-12-28', 9),
-(6, 2, '2025-12-22', '2025-12-28', 14),
-(10, 2, '2025-12-22', '2025-12-28', 7),
-
--- January 2026
-(1, 2, '2025-12-29', '2026-01-04', 12),
-(6, 2, '2025-12-29', '2026-01-04', 13),
-(9, 2, '2025-12-29', '2026-01-04', 7),
-
-(3, 2, '2026-01-05', '2026-01-11', 8),
-(10, 2, '2026-01-05', '2026-01-11', 9),
-
-(1, 2, '2026-01-12', '2026-01-18', 11),
-(6, 2, '2026-01-12', '2026-01-18', 15),
-(9, 2, '2026-01-12', '2026-01-18', 6),
-
-(1, 2, '2026-01-19', '2026-01-25', 10),
-(3, 2, '2026-01-19', '2026-01-25', 9),
-(10, 2, '2026-01-19', '2026-01-25', 8),
-
-(6, 2, '2026-01-26', '2026-02-01', 12),
-(9, 2, '2026-01-26', '2026-02-01', 5),
-
--- February 2026
-(1, 2, '2026-02-02', '2026-02-08', 10),
-(3, 2, '2026-02-02', '2026-02-08', 8),
-(10, 2, '2026-02-02', '2026-02-08', 8),
-
-(6, 2, '2026-02-09', '2026-02-15', 13),
-(9, 2, '2026-02-09', '2026-02-15', 6),
-
-(1, 2, '2026-02-16', '2026-02-22', 11),
-(3, 2, '2026-02-16', '2026-02-22', 9),
-(6, 2, '2026-02-16', '2026-02-22', 14),
-(10, 2, '2026-02-16', '2026-02-22', 9),
-
-(1, 2, '2026-02-23', '2026-03-01', 12),
-(9, 2, '2026-02-23', '2026-03-01', 7),
-
--- March 2026
-(3, 2, '2026-03-02', '2026-03-08', 9),
-(6, 2, '2026-03-02', '2026-03-08', 15),
-(10, 2, '2026-03-02', '2026-03-08', 9),
-
-(1, 2, '2026-03-09', '2026-03-15', 11),
-(9, 2, '2026-03-09', '2026-03-15', 6),
-
-(3, 2, '2026-03-16', '2026-03-22', 8),
-(6, 2, '2026-03-16', '2026-03-22', 13),
-(10, 2, '2026-03-16', '2026-03-22', 8),
-
--- Kaufland (supermarket_id = 3)
--- Products sold at Kaufland: 1, 4, 7, 8, 10
-(7, 3, '2025-11-05', '2025-11-11', 10),
-(8, 3, '2025-11-12', '2025-11-18', 7),
--- November 2025
-(1, 3, '2025-11-19', '2025-11-25', 9),
-(4, 3, '2025-11-19', '2025-11-25', 8),
-(10, 3, '2025-11-19', '2025-11-25', 7),
-
-(7, 3, '2025-11-26', '2025-12-02', 11),
-(8, 3, '2025-11-26', '2025-12-02', 8),
-
--- December 2025
-(1, 3, '2025-12-03', '2025-12-09', 10),
-(4, 3, '2025-12-03', '2025-12-09', 9),
-(7, 3, '2025-12-03', '2025-12-09', 12),
-(10, 3, '2025-12-03', '2025-12-09', 8),
-
-(8, 3, '2025-12-10', '2025-12-16', 9),
-
-(1, 3, '2025-12-17', '2025-12-23', 11),
-(4, 3, '2025-12-17', '2025-12-23', 10),
-
-(7, 3, '2025-12-24', '2025-12-30', 13),
-(10, 3, '2025-12-24', '2025-12-30', 9),
-
--- January 2026
-(1, 3, '2025-12-31', '2026-01-06', 12),
-(8, 3, '2025-12-31', '2026-01-06', 10),
-
-(4, 3, '2026-01-07', '2026-01-13', 9),
-(7, 3, '2026-01-07', '2026-01-13', 14),
-
-(10, 3, '2026-01-14', '2026-01-20', 8),
-
-(1, 3, '2026-01-21', '2026-01-27', 10),
-(7, 3, '2026-01-21', '2026-01-27', 13),
-
-(8, 3, '2026-01-28', '2026-02-03', 8),
-(4, 3, '2026-01-28', '2026-02-03', 8),
-
--- February 2026
-(1, 3, '2026-02-04', '2026-02-10', 11),
-(7, 3, '2026-02-04', '2026-02-10', 15),
-
-(10, 3, '2026-02-11', '2026-02-17', 9),
-(8, 3, '2026-02-11', '2026-02-17', 9),
-
-(4, 3, '2026-02-18', '2026-02-24', 9),
-(1, 3, '2026-02-25', '2026-03-03', 10),
-(7, 3, '2026-02-25', '2026-03-03', 13),
-
--- March 2026
-(8, 3, '2026-03-04', '2026-03-10', 10),
-(10, 3, '2026-03-04', '2026-03-10', 10),
-
-(1, 3, '2026-03-11', '2026-03-17', 12),
-(4, 3, '2026-03-11', '2026-03-17', 10),
-
-(7, 3, '2026-03-18', '2026-03-24', 14),
-(10, 3, '2026-03-18', '2026-03-24', 9),
-
-(8, 3, '2026-03-25', '2026-03-31', 9)
+  -- March 2026
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='paste penne' AND brand='Barilla' AND category='paste făinoase' AND quantity=500 AND unit='g'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2026-03-04', DATE '2026-03-10', 10
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='apă plată' AND brand='Aqua Carpatica' AND category='băuturi' AND quantity=2 AND unit='l'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2026-03-04', DATE '2026-03-10', 10
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='lapte' AND brand='Zuzu' AND category='lactate' AND quantity=1 AND unit='l'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2026-03-11', DATE '2026-03-17', 12
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='brânză telemea' AND brand='Kaufland' AND category='lactate' AND quantity=0.3 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2026-03-11', DATE '2026-03-17', 10
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='piept de pui' AND brand='Kaufland' AND category='carne' AND quantity=1 AND unit='kg'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2026-03-18', DATE '2026-03-24', 14
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='apă plată' AND brand='Aqua Carpatica' AND category='băuturi' AND quantity=2 AND unit='l'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2026-03-18', DATE '2026-03-24', 9
+  UNION ALL SELECT
+    (SELECT id FROM p WHERE name='paste penne' AND brand='Barilla' AND category='paste făinoase' AND quantity=500 AND unit='g'),
+    (SELECT id FROM s WHERE name='Kaufland'),
+    DATE '2026-03-25', DATE '2026-03-31', 9
+)
+INSERT INTO discounts (product_id, supermarket_id, from_date, to_date, percentage_of_discount)
+SELECT product_id, supermarket_id, from_date, to_date, percentage_of_discount
+FROM d
+WHERE product_id IS NOT NULL AND supermarket_id IS NOT NULL
 ON CONFLICT (product_id, supermarket_id, from_date, to_date) DO NOTHING;

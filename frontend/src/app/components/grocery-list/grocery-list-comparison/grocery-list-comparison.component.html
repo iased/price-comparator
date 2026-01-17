@@ -1,0 +1,62 @@
+<div #planSection></div>
+
+<div class="comparison" *ngIf="items?.length; else empty">
+  <div class="top">
+    <div class="heading">
+      <div class="title">Plan cumpărături</div>
+      <p class="sub">
+        Alege câte magazine vrei să vizitezi. Planul împarte lista pentru a obține cel mai mic preț total.
+      </p>
+    </div>
+
+    <div class="controls">
+      <button (click)="load(1, true)" [class.active]="maxStores === 1">1 magazin</button>
+      <button (click)="load(2, true)" [class.active]="maxStores === 2">2 magazine</button>
+      <button (click)="load(3, true)" [class.active]="maxStores === 3">3 magazine</button>
+    </div>
+  </div>
+
+  <div *ngIf="loading">Se încarcă…</div>
+  <div *ngIf="error">{{ error }}</div>
+
+  <ng-container *ngIf="!loading && !error && comparison">
+    <div class="notice" *ngIf="comparison.feasible === false">
+        <ng-container *ngIf="comparison.minStoresNeeded === 2">
+            Lista nu poate fi cumpărată dintr-un singur magazin, încearcă cu <button class="link" (click)="load(comparison.minStoresNeeded)">{{ comparison.minStoresNeeded }} magazine.</button>
+        </ng-container>
+
+        <ng-container *ngIf="comparison.minStoresNeeded > 2">
+            Lista nu poate fi cumpărată din {{ maxStores }} magazine, încearcă cu <button class="link" (click)="load(comparison.minStoresNeeded)">{{ comparison.minStoresNeeded }} magazine.</button>
+        </ng-container>
+    </div>
+
+    <div *ngIf="comparison.feasible === true">
+      <div class="store" *ngFor="let g of groups; trackBy: trackByStore">
+        <div class="store-header">
+          <div class="store-name">{{ g.store }}</div>
+          <div class="subtotal">{{ g.subtotal | number:'1.2-2' }} lei</div>
+        </div>
+
+        <div class="row" *ngFor="let it of g.items; trackBy: trackByItem">
+          <div class="left">
+            <div class="name">{{ it.name | titlecase }}</div>
+            <div class="meta">{{ it.brand }} • x{{ it.quantity }}</div>
+          </div>
+          <div class="right">
+            <div class="price">{{ it.lineTotal | number:'1.2-2' }} lei</div>
+            <div class="unit">
+                {{ it.unitPrice | number:'1.2-2' }} lei/buc × {{ it.quantity }}
+            </div>
+            </div>
+        </div>
+      </div>
+
+      <div class="total">
+        <div class="label">Total</div>
+        <div class="value">{{ comparison.total | number:'1.2-2' }} lei</div>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+<ng-template #empty></ng-template>

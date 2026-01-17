@@ -13,6 +13,8 @@ import { FilterService } from '../../services/filter.service';
 export class ProductsComparisonComponent {
   products: ProductComparison[] = [];
   filteredProducts: ProductComparison[] = [];
+  addingId: number | null = null;
+  justAddedId: number | null = null;
 
   loading = false;
   error: string | null = null;
@@ -36,6 +38,27 @@ export class ProductsComparisonComponent {
     this.filter.store$.subscribe(store => {
       this.storeFilter = store;
       this.applyFilters();
+    });
+  }
+
+  addToList(productId: number) {
+    if (this.addingId === productId) return;
+
+    this.addingId = productId;
+
+    this.api.addToGroceryList(productId, 1).subscribe({
+      next: () => {
+        this.addingId = null;
+
+        this.justAddedId = productId;
+        window.setTimeout(() => {
+          if (this.justAddedId === productId) this.justAddedId = null;
+        }, 900);
+      },
+      error: (err) => {
+        console.error(err);
+        this.addingId = null;
+      }
     });
   }
 
