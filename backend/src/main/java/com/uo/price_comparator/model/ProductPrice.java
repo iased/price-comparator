@@ -2,6 +2,7 @@ package com.uo.price_comparator.model;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -28,18 +29,18 @@ public class ProductPrice {
     private LocalDate priceDate;
 
     @Column(nullable = false)
-    private Double price;
+    private BigDecimal price;
 
     private String currency = "RON";
 
     @Transient
-    private Double discountedPrice;
+    private BigDecimal discountedPrice;
 
     public ProductPrice() {
 
     }
 
-    public ProductPrice(Long id, Product product, Supermarket supermarket, LocalDate priceDate, Double price, String currency) {
+    public ProductPrice(Long id, Product product, Supermarket supermarket, LocalDate priceDate, BigDecimal price, String currency) {
         this.id = id;
         this.product = product;
         this.supermarket = supermarket;
@@ -80,11 +81,9 @@ public class ProductPrice {
         this.priceDate = priceDate;
     }
 
-    public Double getPrice() {
-        return price;
-    }
+    public BigDecimal getPrice() { return price; }
 
-    public void setPrice(Double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
@@ -96,8 +95,8 @@ public class ProductPrice {
         this.currency = currency;
     }
 
-    public Double getDiscountedPrice() { return discountedPrice; }
+    public BigDecimal getDiscountedPrice() { return discountedPrice; }
 
-    public void setDiscountedPrice(Double discountedPrice) { this.discountedPrice = discountedPrice; }
+    public void setDiscountedPrice(BigDecimal discountedPrice) { this.discountedPrice = discountedPrice; }
 
 }

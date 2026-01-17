@@ -1,25 +1,27 @@
 .tabs-container {
-  display: flex;
+  display: inline-flex;
+  gap: 6px;
   background: #f5f5f8;
   padding: 3px;
   border-radius: 999px;
-  width: 260px;
+  width: fit-content;
   margin: 16px 0 24px 0;
   overflow: hidden;
 }
 
 .tab {
   position: relative;
-  flex: 1;
-  min-width: 0;
   border: 0;
   background: transparent;
-  padding: 6px 0;
+  padding: 6px 18px;
   border-radius: 999px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  z-index: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
 }
 
 .tab::before {
@@ -40,4 +42,9 @@
 
 .tab.active::before {
   opacity: 1;
+}
+
+@media (max-width: 480px) {
+  .tabs-container { width: 100%; display: flex; }
+  .tab { flex: 1; padding: 6px 12px; font-size: 13px; }
 }

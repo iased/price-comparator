@@ -26,84 +26,90 @@ public class ProductComparisonService {
 
     public List<ProductComparisonDto> getComparison() {
         LocalDate today = LocalDate.now();
-
         List<ProductPrice> latestPrices = productPriceRepository.findLatestPricesForAllProducts();
 
-        // group by product
         Map<Long, List<ProductPrice>> byProduct = latestPrices.stream()
                 .collect(Collectors.groupingBy(pp -> pp.getProduct().getId()));
 
-        // build DTO per product
         List<ProductComparisonDto> result = new ArrayList<>();
-
-        for (Map.Entry<Long, List<ProductPrice>> entry : byProduct.entrySet()) {
-            List<ProductPrice> pricesForProduct = entry.getValue();
-            if (pricesForProduct.isEmpty()) continue;
-
-            Product product = pricesForProduct.get(0).getProduct();
-            ProductComparisonDto dto = new ProductComparisonDto();
-            dto.setProductId(product.getId());
-            dto.setName(product.getName());
-            dto.setBrand(product.getBrand());
-            dto.setCategory(product.getCategory());
-            dto.setQuantity(product.getQuantity());
-            dto.setUnit(product.getUnit());
-            dto.setImageUrl(product.getImageUrl());
-
-            List<OfferDto> offers = new ArrayList<>();
-
-            for (ProductPrice pp : pricesForProduct) {
-                OfferDto offer = new OfferDto();
-                offer.setStore(pp.getSupermarket().getName());
-                offer.setPrice(pp.getPrice());
-                offer.setDate(pp.getPriceDate());
-
-                // price per unit: price / quantity
-                if (product.getQuantity() != 0) {
-                    double pricePerUnit = pp.getPrice() / product.getQuantity();
-                    offer.setPricePerUnit(pricePerUnit);
-                }
-
-                if (pp.getDiscountedPrice() != null) {
-                    offer.setDiscountedPrice(pp.getDiscountedPrice());
-
-                    if (product.getQuantity() != 0) {
-                        double discountedPPU = pp.getDiscountedPrice() / product.getQuantity();
-                        offer.setDiscountedPricePerUnit(discountedPPU);
-                    }
-                }
-
-                discountService.getBestActiveDiscount(pp, today).ifPresent(d -> {
-                    offer.setDiscountPercent(d.getPercentageOfDiscount());
-
-                    double discounted = discountService.applyDiscount(pp.getPrice(), d.getPercentageOfDiscount());
-                    offer.setDiscountedPrice(discounted);
-
-                    if (product.getQuantity() != 0) {
-                        offer.setDiscountedPricePerUnit(discounted / product.getQuantity());
-                    }
-                });
-
-                offers.add(offer);
-            }
-
-            dto.setOffers(offers);
-
-            // best offer
-            offers.stream()
-                    .min(Comparator.comparingDouble(o ->
-                            o.getDiscountedPrice() != null ? o.getDiscountedPrice() : o.getPrice()
-                    ))
-                    .ifPresent(dto::setBestOffer);
-
-
-            result.add(dto);
+        for (List<ProductPrice> prices : byProduct.values()) {
+            result.add(buildDto(prices, today));
         }
 
-        // sort products by name
-        result.sort(Comparator.comparing(ProductComparisonDto::getName,
-                String.CASE_INSENSITIVE_ORDER));
-
+        result.sort(Comparator.comparing(ProductComparisonDto::getName, String.CASE_INSENSITIVE_ORDER));
         return result;
+    }
+
+    public ProductComparisonDto getComparisonForProduct(Long productId) {
+        LocalDate today = LocalDate.now();
+
+        List<ProductPrice> pricesForProduct = productPriceRepository.findLatestPricesForProduct(productId);
+
+        if (pricesForProduct.isEmpty()) {
+            throw new RuntimeException("No prices for product " + productId);
+        }
+
+        return buildDto(pricesForProduct, today);
+    }
+
+    private ProductComparisonDto buildDto(List<ProductPrice> pricesForProduct, LocalDate today) {
+        Product product = pricesForProduct.get(0).getProduct();
+
+        ProductComparisonDto dto = new ProductComparisonDto();
+        dto.setProductId(product.getId());
+        dto.setName(product.getName());
+        dto.setBrand(product.getBrand());
+        dto.setCategory(product.getCategory());
+        dto.setQuantity(product.getQuantity());
+        dto.setUnit(product.getUnit());
+        dto.setImageUrl(product.getImageUrl());
+
+        List<OfferDto> offers = new ArrayList<>();
+
+        for (ProductPrice pp : pricesForProduct) {
+            OfferDto offer = new OfferDto();
+            offer.setStore(pp.getSupermarket().getName());
+            offer.setPrice(pp.getPrice());
+            offer.setDate(pp.getPriceDate());
+
+            if (product.getQuantity().compareTo(BigDecimal.ZERO) != 0) {
+                offer.setPricePerUnit(
+                        pp.getPrice().divide(product.getQuantity(), 2, RoundingMode.HALF_UP)
+                );
+            }
+
+            discountService.getBestActiveDiscount(pp, today).ifPresent(d -> {
+                offer.setDiscountPercent(d.getPercentageOfDiscount());
+
+                BigDecimal discounted = discountService.applyDiscount(
+                        pp.getPrice(),
+                        d.getPercentageOfDiscount()
+                );
+
+                offer.setDiscountedPrice(discounted);
+
+                if (product.getQuantity().compareTo(BigDecimal.ZERO) != 0) {
+                    offer.setDiscountedPricePerUnit(
+                            discounted.divide(product.getQuantity(), 2, RoundingMode.HALF_UP)
+                    );
+                }
+            });
+
+
+            offers.add(offer);
+        }
+
+        dto.setOffers(offers);
+
+        offers.stream()
+                .min(Comparator.comparing(
+                        (OfferDto o) ->
+                                o.getDiscountedPrice() != null
+                                        ? o.getDiscountedPrice()
+                                        : o.getPrice()
+                ))
+                .ifPresent(dto::setBestOffer);
+
+        return dto;
     }
 }

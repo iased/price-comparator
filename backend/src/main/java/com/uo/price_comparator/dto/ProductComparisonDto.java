@@ -1,5 +1,6 @@
 package com.uo.price_comparator.dto;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class ProductComparisonDto {
@@ -7,7 +8,7 @@ public class ProductComparisonDto {
     private String name;
     private String brand;
     private String category;
-    private double quantity;
+    private BigDecimal quantity;
     private String unit;
     private String imageUrl;
 
@@ -26,8 +27,8 @@ public class ProductComparisonDto {
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
 
-    public double getQuantity() { return quantity; }
-    public void setQuantity(double quantity) { this.quantity = quantity; }
+    public BigDecimal getQuantity() { return quantity; }
+    public void setQuantity(BigDecimal quantity) { this.quantity = quantity; }
 
     public String getUnit() { return unit; }
     public void setUnit(String unit) { this.unit = unit; }

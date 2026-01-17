@@ -64,6 +64,82 @@
   background: #ffffff;
   box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
   align-items: start;
+  position: relative;
+}
+
+.add-to-list-btn {
+  position: absolute;
+  top: 12px;
+  right: 20px;
+  z-index: 10; 
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow:
+    0 1px 2px rgba(0,0,0,0.06),
+    0 4px 8px rgba(0,0,0,0.04);
+}
+
+.add-to-list-btn:hover {
+  background: #f9fafb;
+}
+
+.icon-swap {
+  position: relative;
+  width: 18px;
+  height: 18px;
+}
+
+.icon-swap .icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  place-items: center;
+  line-height: 1;
+  transition: opacity 150ms ease, transform 180ms ease;
+  transform-origin: center;
+  will-change: transform;
+}
+
+.icon-swap .glyph {
+  display: inline-block;
+  line-height: 1;
+}
+
+.icon-swap .check .glyph {
+  transform: translateY(-1px);
+}
+
+.icon-swap .plus { 
+  opacity: 1; 
+  transform: scale(1); }
+.icon-swap .check { 
+  opacity: 0; 
+  transform: scale(0.6); }
+
+.icon-swap.show-check .plus { 
+  opacity: 0; 
+  transform: scale(0.6); 
+}
+.icon-swap.show-check .check { 
+  opacity: 1; 
+  transform: scale(1.1); 
+  animation: pop 220ms ease-out; 
+}
+
+@keyframes pop {
+  0% { transform: scale(0.6); }
+  70% { transform: scale(1.18); }
+  100% { transform: scale(1.1); }
 }
 
 .product-image {
@@ -177,6 +253,7 @@
 .offers-row {
   display: grid;
   gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 }
 
 .offers-row.offers-1,
@@ -270,4 +347,91 @@
   width: 2.2rem;
   height: 1rem;
   display: inline-block;
+}
+
+@media (max-width: 900px) {
+  .offers-row.offers-1,
+  .offers-row.offers-2,
+  .offers-row.offers-3,
+  .offers-row.offers-4,
+  .offers-row.offers-5 {
+    grid-template-columns: repeat(2, minmax(160px, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .product-card {
+    grid-template-columns: 56px minmax(0, 1fr);
+    gap: 0.75rem;
+    padding: 0.9rem;
+  }
+
+  .product-image {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+  }
+
+  .product-name {
+    font-size: 1rem;
+  }
+
+  .add-to-list-btn {
+    width: 34px;
+    height: 34px;
+    top: 10px;
+    right: 10px;
+  }
+
+  .best-price-strip {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.6rem 0.75rem;
+    gap: 0.4rem;
+  }
+
+  .best-price-main {
+    font-size: 1.15rem;
+  }
+
+  .best-price-old {
+    font-size: 0.75rem;
+  }
+
+  .best-price-per-unit {
+    font-size: 0.75rem;
+  }
+
+  .best-price-side {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+  }
+
+  .offers-row.offers-1,
+  .offers-row.offers-2,
+  .offers-row.offers-3,
+  .offers-row.offers-4,
+  .offers-row.offers-5 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+
+  .offer-card {
+    padding: 0.7rem;
+    font-size: 0.95rem;
+  }
+  .offer-store {
+    font-size: 0.75rem;
+    margin-bottom: 0.15rem;
+  }
+
+  .offer-current-price {
+    font-size: 0.9rem;
+  }
+
+  .offer-ppu {
+    font-size: 0.72rem;
+  }
 }

@@ -2,6 +2,8 @@ package com.uo.price_comparator.model;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name="products",
         uniqueConstraints = @UniqueConstraint(columnNames = {
@@ -18,7 +20,7 @@ public class Product {
 
     private String brand;
     private String category;
-    private double quantity;
+    private BigDecimal quantity;
     private String unit;
 
     @Column(name = "image_url")
@@ -28,7 +30,7 @@ public class Product {
 
     }
 
-    public Product(Long id, String name, String brand, String category, double quantity, String unit, String imageUrl) {
+    public Product(Long id, String name, String brand, String category, BigDecimal quantity, String unit, String imageUrl) {
         this.id = id;
         this.name = name;
         this.brand = brand;
@@ -70,11 +72,11 @@ public class Product {
         this.category = category;
     }
 
-    public double getQuantity() {
+    public BigDecimal getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(double quantity) {
+    public void setQuantity(BigDecimal quantity) {
         this.quantity = quantity;
     }
 

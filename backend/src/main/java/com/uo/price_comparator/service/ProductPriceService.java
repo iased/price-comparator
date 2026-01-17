@@ -5,6 +5,7 @@ import com.uo.price_comparator.repository.DiscountRepository;
 import com.uo.price_comparator.repository.ProductPriceRepository;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class ProductPriceService {
         var bestOpt = discountService.getBestActiveDiscount(pp, LocalDate.now());
 
         bestOpt.ifPresent(d -> {
-            double discounted = discountService.applyDiscount(pp.getPrice(), d.getPercentageOfDiscount());
+            BigDecimal discounted = discountService.applyDiscount(pp.getPrice(), d.getPercentageOfDiscount());
             pp.setDiscountedPrice(discounted);
         });
 
