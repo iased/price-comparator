@@ -23,6 +23,10 @@ public class GroceryListItem {
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "grocery_list_id")
+    private GroceryList groceryList;
+
     public Long getId() { return id; }
 
     public Product getProduct() { return product; }
@@ -32,4 +36,8 @@ public class GroceryListItem {
     public void setQuantity(Integer quantity) { this.quantity = quantity; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
+
+    public GroceryList getGroceryList() { return groceryList; }
+
+    public void setGroceryList(GroceryList groceryList) { this.groceryList = groceryList; }
 }

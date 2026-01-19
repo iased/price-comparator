@@ -8,4 +8,7 @@ import java.util.Optional;
 
 public interface GroceryListItemRepository extends JpaRepository<GroceryListItem, Long> {
     Optional<GroceryListItem> findByProduct_Id(Long productId);
+    List<GroceryListItem> findByGroceryList_Id(Long id);
+    Optional<GroceryListItem> findByGroceryList_IdAndProduct_Id(Long id, Long productId);
+    Optional<GroceryListItem> findByIdAndGroceryList_User_Email(Long itemId, String email);
 }

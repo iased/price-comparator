@@ -4,12 +4,16 @@ import com.uo.price_comparator.dto.GroceryListComparisonDto;
 import com.uo.price_comparator.dto.GroceryListItemDto;
 import com.uo.price_comparator.dto.ItemChoiceDto;
 import com.uo.price_comparator.dto.ProductComparisonDto;
+import com.uo.price_comparator.model.GroceryList;
 import com.uo.price_comparator.model.GroceryListItem;
 import com.uo.price_comparator.model.Product;
 import com.uo.price_comparator.model.ProductPrice;
 import com.uo.price_comparator.repository.GroceryListItemRepository;
+import com.uo.price_comparator.repository.GroceryListRepository;
 import com.uo.price_comparator.repository.ProductPriceRepository;
 import com.uo.price_comparator.repository.ProductRepository;
+import com.uo.price_comparator.user.User;
+import com.uo.price_comparator.user.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,28 +28,37 @@ public class GroceryListService {
     private final ProductRepository productRepo;
     private final ProductComparisonService comparisonService;
     private final ProductPriceRepository priceRepo;
+    private final UserRepository userRepo;
+    private final GroceryListRepository groceryListRepo;
 
     public GroceryListService(GroceryListItemRepository groceryRepo,
                               ProductRepository productRepo,
                               ProductComparisonService comparisonService,
-                              ProductPriceRepository priceRepo) {
+                              ProductPriceRepository priceRepo,
+                              UserRepository userRepo,
+                              GroceryListRepository groceryListRepo) {
         this.groceryRepo = groceryRepo;
         this.productRepo = productRepo;
         this.comparisonService = comparisonService;
         this.priceRepo = priceRepo;
+        this.userRepo = userRepo;
+        this.groceryListRepo = groceryListRepo;
     }
 
     @Transactional
-    public GroceryListItemDto addItem(Long productId, Integer quantity) {
+    public GroceryListItemDto addItem(String email, Long productId, Integer quantity) {
         if (quantity == null || quantity <= 0) {
-            throw new RuntimeException("Quantity must be > 0");
+            throw new RuntimeException("Cantitatea trebuie să fie mai mare decât 0.");
         }
 
-        GroceryListItem item = groceryRepo.findByProduct_Id(productId)
+        GroceryList list = getOrCreateForEmail(email);
+
+        GroceryListItem item = groceryRepo.findByGroceryList_IdAndProduct_Id(list.getId(), productId)
                 .orElseGet(() -> {
                     Product p = productRepo.findById(productId)
-                            .orElseThrow(() -> new RuntimeException("Product not found: " + productId));
+                            .orElseThrow(() -> new RuntimeException("Produsul " + productId + " nu a fost găsit."));
                     GroceryListItem newItem = new GroceryListItem();
+                    newItem.setGroceryList(list);
                     newItem.setProduct(p);
                     newItem.setQuantity(0);
                     return newItem;
@@ -58,28 +71,37 @@ public class GroceryListService {
     }
 
     @Transactional(readOnly = false)
-    public List<GroceryListItemDto> getItems() {
-        return groceryRepo.findAll().stream()
-                .sorted(Comparator.comparing(i -> i.getProduct().getName(), String.CASE_INSENSITIVE_ORDER))
+    public List<GroceryListItemDto> getItems(String email) {
+        GroceryList list = getOrCreateForEmail(email);
+
+        return groceryRepo.findByGroceryList_Id(list.getId()).stream()
+                .sorted(Comparator.comparing(
+                        i -> i.getProduct().getName(),
+                        String.CASE_INSENSITIVE_ORDER
+                ))
                 .map(this::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional
-    public GroceryListItemDto updateQuantity(Long itemId, Integer quantity) {
+    public GroceryListItemDto updateQuantity(String email, Long itemId, Integer quantity) {
         if (quantity == null || quantity <= 0) {
-            throw new RuntimeException("Quantity must be > 0");
+            throw new RuntimeException("Cantitatea trebuie să fie mai mare decât 0.");
         }
 
-        GroceryListItem item = groceryRepo.findById(itemId)
-                .orElseThrow(() -> new RuntimeException("Grocery item not found: " + itemId));
+        GroceryListItem item = groceryRepo.findByIdAndGroceryList_User_Email(itemId, email)
+                .orElseThrow(() -> new RuntimeException("Produsul " + itemId + " din listă nu a fost găsit."));
 
         item.setQuantity(quantity);
         return toDto(groceryRepo.save(item));
     }
 
-    public void delete(Long itemId) {
-        groceryRepo.deleteById(itemId);
+    public void delete(String email, Long itemId) {
+        GroceryListItem item = groceryRepo
+                .findByIdAndGroceryList_User_Email(itemId, email)
+                .orElseThrow(() -> new RuntimeException("Produsul " + itemId + " din listă nu a fost găsit."));
+
+        groceryRepo.delete(item);
     }
 
     private GroceryListItemDto toDto(GroceryListItem item) {
@@ -114,10 +136,12 @@ public class GroceryListService {
     }
 
     @Transactional(readOnly = true)
-    public GroceryListComparisonDto getBestSplitPlan(int maxStores) {
+    public GroceryListComparisonDto getBestSplitPlan(String email, int maxStores) {
         if (maxStores < 1) maxStores = 1;
 
-        List<GroceryListItem> items = groceryRepo.findAll(); // or user’s list
+        GroceryList list = getOrCreateForEmail(email);
+        List<GroceryListItem> items = groceryRepo.findByGroceryList_Id(list.getId());
+
         if (items.isEmpty()) {
             GroceryListComparisonDto empty = new GroceryListComparisonDto();
             empty.setMaxStores(maxStores);
@@ -284,5 +308,17 @@ public class GroceryListService {
             backtrack(stores, k, i + 1, cur, res);
             cur.remove(cur.size() - 1);
         }
+    }
+
+    public GroceryList getOrCreateForEmail(String email) {
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Utilizatorul nu a fost găsit."));
+
+        return groceryListRepo.findByUser(user)
+                .orElseGet(() -> {
+                    GroceryList gl = new GroceryList();
+                    gl.setUser(user);
+                    return groceryListRepo.save(gl);
+                });
     }
 }
