@@ -23,6 +23,7 @@ services:
       DB_NAME: ${DB_NAME:-products_db}
       DB_USERNAME: ${DB_USERNAME:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      APP_JWT_SECRET: ${APP_JWT_SECRET}
     ports:
       - "8080:8080"
       

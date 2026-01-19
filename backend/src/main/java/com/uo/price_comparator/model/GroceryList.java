@@ -1,6 +1,10 @@
 package com.uo.price_comparator.model;
 
+import com.uo.price_comparator.user.User;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "grocery_lists")
@@ -9,8 +13,12 @@ public class GroceryList {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String name = "My list";
+    @OneToOne(optional = false)
+    @JoinColumn(name = "user_id", unique = true)
+    private User user;
+
+    @OneToMany(mappedBy = "groceryList", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<GroceryListItem> items = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -20,11 +28,11 @@ public class GroceryList {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
+    public User getUser() { return user; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public void setUser(User user) { this.user = user; }
+
+    public List<GroceryListItem> getItems() { return items; }
+
+    public void setItems(List<GroceryListItem> items) { this.items = items; }
 }
