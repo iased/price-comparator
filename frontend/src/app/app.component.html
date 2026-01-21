@@ -1,5 +1,5 @@
 <app-header></app-header>
 <div class="page">
-    <app-tabs></app-tabs>
+    <app-tabs *ngIf="showTabs"></app-tabs>
     <router-outlet></router-outlet>
 </div>

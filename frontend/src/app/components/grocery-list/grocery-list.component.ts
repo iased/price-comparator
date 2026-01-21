@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { GroceryListComparisonComponent } from './grocery-list-comparison/grocery-list-comparison.component';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-grocery-list',
@@ -16,10 +18,16 @@ export class GroceryListComponent implements OnInit {
   error: string | null = null;
   trackById = (_: number, it: any) => it.id ?? it.itemId ?? it.productId;
 
-  constructor(private api: ApiService) {}
+  constructor(
+    private api: ApiService, 
+    private router: Router,
+    public auth: AuthService
+  ) {}
 
   ngOnInit(): void {
-    this.reload();
+    if (this.auth.isLoggedIn()) {
+      this.reload();
+    }
   }
 
   reload(): void {
@@ -71,7 +79,21 @@ export class GroceryListComponent implements OnInit {
   }
 
   remove(it: any) {
-    const itemId = Number(it.id);
+    const itemId = this.getItemId(it);
     this.api.deleteGroceryListItem(itemId).subscribe(() => this.reload());
+  }
+
+  goToProducts() {
+    this.router.navigate(['/products']);
+  }
+
+  goToLogin() {
+    const returnUrl = this.router.url;
+    this.router.navigate(['/auth/login'], { queryParams: { returnUrl } });
+  }
+
+  goToRegister() {
+    const returnUrl = this.router.url;
+    this.router.navigate(['/auth/register'], { queryParams: { returnUrl } });
   }
 }
