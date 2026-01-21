@@ -2,23 +2,44 @@
   <div class="header-container">
 
     <div class="top-row">
-      <div class="brand">
+      <a routerLink="/products" class="brand">
         🛒 <span>Comparator</span>
-      </div>
+      </a>
 
       <div class="actions">
-       <div class="actions">
-          <button
-            class="btn btn-ghost"
-            type="button"
-            (click)="goToList()"
-            title="Listă de cumpărături"
-            aria-label="Listă de cumpărături"
-          >
-            <span class="icon">📋</span>
+        <button
+          class="btn btn-ghost btn-icon"
+          type="button"
+          (click)="goToList()"
+          title="Listă de cumpărături"
+          aria-label="Listă de cumpărături"
+        >
+          📋
+        </button>
+
+        <div class="user-menu" tabindex="0">
+          <button class="btn btn-ghost btn-icon user-trigger" type="button" aria-label="Cont">
+            <span class="icon">👤</span>
           </button>
+
+          <div class="user-dropdown">
+            <ng-container *ngIf="!auth.isLoggedIn(); else loggedInMenu">
+              <button class="drop-item" type="button" (click)="goToLogin()">Intră în cont</button>
+              <button class="drop-item" type="button" (click)="goToRegister()">Cont nou</button>
+            </ng-container>
+
+            <ng-template #loggedInMenu>
+              <div class="drop-label">
+                Conectat ca
+                <div class="drop-user">{{ auth.getUserNameOrEmail() }}</div>
+              </div>
+
+              <button class="drop-item danger" type="button" (click)="logout()">Logout</button>
+            </ng-template>
+          </div>
         </div>
       </div>
+
     </div>
 
     <div class="header-filters">

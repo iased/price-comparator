@@ -1,0 +1,43 @@
+<div class="auth-page">
+  <div class="card">
+    <div class="header">
+      <div class="title">Intră în cont</div>
+      <div class="subtitle">Autentifică-te cu adresa de email și parola.</div>
+    </div>
+
+    <form (ngSubmit)="submit()" class="form">
+      <label class="field">
+        <span>Email</span>
+        <input
+          type="email"
+          [(ngModel)]="email"
+          name="email"
+          autocomplete="email"
+          placeholder="Ex: nume.prenume@email.com"
+        />
+      </label>
+
+      <label class="field">
+        <span>Parolă</span>
+        <input
+          type="password"
+          [(ngModel)]="password"
+          name="password"
+          autocomplete="current-password"
+          placeholder="••••••••"
+        />
+      </label>
+
+      <div class="error" *ngIf="error">{{ error }}</div>
+
+      <button class="btn btn-primary" type="submit" [disabled]="loading">
+        {{ loading ? 'Se conectează…' : 'Intră' }}
+      </button>
+
+      <div class="footer">
+        Nu ai cont?
+        <button type="button" class="link" (click)="goRegister()">Creează cont</button>
+      </div>
+    </form>
+  </div>
+</div>

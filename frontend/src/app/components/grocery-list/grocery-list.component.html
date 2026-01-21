@@ -2,14 +2,32 @@
   <div class="header">
     <div>
       <h2>Listă de cumpărături</h2>
-      <p class="sub">Ajustează cantitățile sau elimină produse din listă. </p>
+      <p class="sub">Adaugă produsele dorite pentru a genera un plan de cumpărături optim.</p>
     </div>
   </div>
 
   <div class="card">
-      <div class="empty" *ngIf="!loading && !items.length">
-      Lista este goală. Adăugarea se face din pagina <b>Produse</b>
-    </div>
+      <div class="empty" *ngIf="!loading && !auth.isLoggedIn()">
+        <p>Pentru a utiliza lista de cumpărături, este necesar să fii autentificat.</p>
+
+        <div class="empty-actions">
+          <button class="btn btn-primary" (click)="goToLogin()">Intră în cont</button>
+          <button class="btn btn-ghost" (click)="goToRegister()">Creează cont</button>
+        </div>
+      </div>
+
+      <div
+        class="empty"
+        *ngIf="!loading && auth.isLoggedIn() && !items.length"
+      >
+        <p>
+          Lista de cumpărături este goală.
+        </p>
+        <p>
+          Adăugarea produselor se face din pagina 
+          <button type="button" class="link" (click)="goToProducts()">Produse</button>
+        </p>
+      </div>
 
     <div class="row" *ngFor="let it of items; trackBy: trackById">
       <div class="info">

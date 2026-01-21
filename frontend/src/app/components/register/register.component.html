@@ -1,0 +1,41 @@
+<div class="auth-page">
+  <div class="card">
+    <div class="header">
+      <div class="title">Creează cont</div>
+      <div class="subtitle">Contul este necesar pentru utilizarea listei de cumpărături.</div>
+    </div>
+
+    <form (ngSubmit)="submit()" class="form">
+      <label class="field">
+        <span>Nume complet</span>
+        <input type="text" [(ngModel)]="name" name="name" autocomplete="name" placeholder="Ex: Popescu Ana" />
+      </label>
+
+      <label class="field">
+        <span>Email</span>
+        <input type="email" [(ngModel)]="email" name="email" autocomplete="email" placeholder="Ex: nume.prenume@email.com" />
+      </label>
+
+      <label class="field">
+        <span>Parolă</span>
+        <input type="password" [(ngModel)]="password" name="password" autocomplete="new-password" placeholder="••••••••" />
+      </label>
+
+      <label class="field">
+        <span>Confirmă parola</span>
+        <input type="password" [(ngModel)]="confirmPassword" name="confirmPassword" autocomplete="new-password" placeholder="••••••••" />
+      </label>
+
+      <div class="error" *ngIf="error">{{ error }}</div>
+
+      <button class="btn btn-primary" type="submit" [disabled]="loading">
+        {{ loading ? 'Se creează…' : 'Creează cont' }}
+      </button>
+
+      <div class="footer">
+        Ai deja cont?
+        <button type="button" class="link" (click)="goLogin()">Intră în contul tău</button>
+      </div>
+    </form>
+  </div>
+</div>
