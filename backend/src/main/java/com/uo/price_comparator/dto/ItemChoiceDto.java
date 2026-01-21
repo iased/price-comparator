@@ -7,7 +7,8 @@ public class ItemChoiceDto {
     private Long productId;
     private String name;
     private String brand;
-
+    private BigDecimal packageQuantityValue;
+    private String packageUnit;
     private int quantity;
 
     private String chosenStore;
@@ -25,6 +26,20 @@ public class ItemChoiceDto {
 
     public String getBrand() { return brand; }
     public void setBrand(String brand) { this.brand = brand; }
+
+    public BigDecimal getPackageQuantityValue() { return packageQuantityValue; }
+
+    public void setPackageQuantityValue(BigDecimal packageQuantityValue) {
+        this.packageQuantityValue = packageQuantityValue;
+    }
+
+    public String getPackageUnit() {
+        return packageUnit;
+    }
+
+    public void setPackageUnit(String packageUnit) {
+        this.packageUnit = packageUnit;
+    }
 
     public int getQuantity() { return quantity; }
     public void setQuantity(int quantity) { this.quantity = quantity; }
