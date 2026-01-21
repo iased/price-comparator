@@ -153,23 +153,13 @@ public class GroceryListService {
             return empty;
         }
 
-        List<Long> productIds = items.stream()
-                .map(i -> i.getProduct().getId())
-                .distinct()
-                .toList();
-
-        List<ProductPrice> latest = priceRepo.findLatestPricesForProducts(productIds);
-
-        Map<Long, Map<String, BigDecimal>> pricesByProduct = new HashMap<>();
         Set<String> allStores = new HashSet<>();
 
-        for (ProductPrice pp : latest) {
-            Long pid = pp.getProduct().getId();
-            String store = pp.getSupermarket().getName();
-            BigDecimal unit = pp.getPrice();
-
-            pricesByProduct.computeIfAbsent(pid, k -> new HashMap<>()).put(store, unit);
-            allStores.add(store);
+        for (GroceryListItem it : items) {
+            ProductComparisonDto cmp = comparisonService.getComparisonForProduct(it.getProduct().getId());
+            for (var offer : cmp.getOffers()) {
+                allStores.add(offer.getStore());
+            }
         }
 
         List<String> stores = new ArrayList<>(allStores);
@@ -181,7 +171,7 @@ public class GroceryListService {
 
         for (int k = 1; k <= cap; k++) {
             for (List<String> combo : combinations(stores, k)) {
-                BestPlan candidatePlan = evaluateCombo(items, pricesByProduct, combo);
+                BestPlan candidatePlan = evaluateCombo(items, combo);
                 if (candidatePlan == null) continue;
 
                 if (best == null || candidatePlan.total.compareTo(best.total) < 0) {
@@ -197,7 +187,7 @@ public class GroceryListService {
                 boolean found = false;
 
                 for (List<String> combo2 : combinations(stores, k2)) {
-                    BestPlan candidatePlan = evaluateCombo(items, pricesByProduct, combo2);
+                    BestPlan candidatePlan = evaluateCombo(items, combo2);
                     if (candidatePlan == null) continue;
 
                     found = true;
@@ -231,9 +221,7 @@ public class GroceryListService {
         return dto;
     }
 
-    private BestPlan evaluateCombo(List<GroceryListItem> items,
-                                   Map<Long, Map<String, BigDecimal>> pricesByProduct,
-                                   List<String> allowedStores) {
+    private BestPlan evaluateCombo(List<GroceryListItem> items, List<String> allowedStores) {
 
         BigDecimal total = BigDecimal.ZERO;
         List<ItemChoiceDto> choices = new ArrayList<>();
@@ -242,24 +230,28 @@ public class GroceryListService {
             Long pid = it.getProduct().getId();
             int qty = it.getQuantity();
 
-            Map<String, BigDecimal> byStore = pricesByProduct.get(pid);
-            if (byStore == null) return null;
+            ProductComparisonDto comparison =
+                    comparisonService.getComparisonForProduct(pid);
 
-            String bestStore = null;
-            BigDecimal bestPrice = null;
+            // choose best offer among allowed stores
+            var bestOfferOpt = comparison.getOffers().stream()
+                    .filter(o -> allowedStores.contains(o.getStore()))
+                    .min(Comparator.comparing(
+                            o -> o.getDiscountedPrice() != null
+                                    ? o.getDiscountedPrice()
+                                    : o.getPrice()
+                    ));
 
-            for (String s : allowedStores) {
-                BigDecimal price = byStore.get(s);
-                if (price == null) continue;
-                if (bestPrice == null || price.compareTo(bestPrice) < 0) {
-                    bestPrice = price;
-                    bestStore = s;
-                }
-            }
+            if (bestOfferOpt.isEmpty()) return null;
 
-            if (bestStore == null) return null;
+            var offer = bestOfferOpt.get();
 
-            BigDecimal lineTotal = bestPrice.multiply(BigDecimal.valueOf(qty));
+            BigDecimal unitPrice =
+                    offer.getDiscountedPrice() != null
+                            ? offer.getDiscountedPrice()
+                            : offer.getPrice();
+
+            BigDecimal lineTotal = unitPrice.multiply(BigDecimal.valueOf(qty));
             total = total.add(lineTotal);
 
             ItemChoiceDto c = new ItemChoiceDto();
@@ -268,8 +260,8 @@ public class GroceryListService {
             c.setName(it.getProduct().getName());
             c.setBrand(it.getProduct().getBrand());
             c.setQuantity(qty);
-            c.setChosenStore(bestStore);
-            c.setUnitPrice(bestPrice);
+            c.setChosenStore(offer.getStore());
+            c.setUnitPrice(unitPrice);
             c.setLineTotal(lineTotal);
 
             choices.add(c);

@@ -3,6 +3,8 @@ import { Component } from '@angular/core';
 import { ProductComparison, Offer } from '../../models/product-comparison.model';
 import { ApiService } from '../../services/api.service';
 import { FilterService } from '../../services/filter.service';
+import { Router } from '@angular/router';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-products-comparison',
@@ -24,7 +26,9 @@ export class ProductsComparisonComponent {
 
   constructor(
     private api: ApiService,
-    private filter: FilterService
+    private filter: FilterService,
+    public auth: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -131,24 +135,28 @@ export class ProductsComparisonComponent {
   }
 
   isBestOffer(product: ProductComparison, offer: Offer): boolean {
-  const offers = product.offers ?? [];
-  if (!offers.length) return false;
+    const offers = product.offers ?? [];
+    if (!offers.length) return false;
 
-  const min = Math.min(...offers.map(o => this.getEffectivePrice(o)));
+    const min = Math.min(...offers.map(o => this.getEffectivePrice(o)));
 
-  const EPS = 0.01;
-  return Math.abs(this.getEffectivePrice(offer) - min) < EPS;
+    const EPS = 0.01;
+    return Math.abs(this.getEffectivePrice(offer) - min) < EPS;
   }
 
   getBestOffers(product: ProductComparison): Offer[] {
-  const offers = product.offers ?? [];
-  if (!offers.length) return [];
+    const offers = product.offers ?? [];
+    if (!offers.length) return [];
 
-  const min = Math.min(...offers.map(o => this.getEffectivePrice(o)));
-  const EPS = 0.01;
+    const min = Math.min(...offers.map(o => this.getEffectivePrice(o)));
+    const EPS = 0.01;
 
-  return offers.filter(o => Math.abs(this.getEffectivePrice(o) - min) < EPS);
-}
+    return offers.filter(o => Math.abs(this.getEffectivePrice(o) - min) < EPS);
+  }
 
+  goToLogin() {
+    const returnUrl = this.router.url;
+    this.router.navigate(['/auth/login'], { queryParams: { returnUrl } });
+  }
 
 }

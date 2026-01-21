@@ -91,6 +91,18 @@
   background: #f9fafb;
 }
 
+.add-to-list-btn:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+  box-shadow: none;
+  border-color: #e5e7eb;
+  background: #f9fafb;
+}
+
+.add-to-list-btn:disabled .glyph {
+  opacity: 0.75;
+}
+
 .icon-swap {
   position: relative;
   width: 18px;

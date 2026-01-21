@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { GroceryListComparisonComponent } from './grocery-list-comparison/grocery-list-comparison.component';
 import { AuthService } from '../../auth/auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-grocery-list',
@@ -12,7 +13,8 @@ import { AuthService } from '../../auth/auth.service';
   templateUrl: './grocery-list.component.html',
   styleUrls: ['./grocery-list.component.scss']
 })
-export class GroceryListComponent implements OnInit {
+export class GroceryListComponent implements OnInit, OnDestroy {
+  private sub?: Subscription;
   items: any[] = [];
   loading = false;
   error: string | null = null;
@@ -25,9 +27,20 @@ export class GroceryListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    if (this.auth.isLoggedIn()) {
+    this.sub = this.auth.loggedInChanges().subscribe(isIn => {
+      if (!isIn) {
+        this.items = [];
+        this.error = null;
+        this.loading = false;
+        return;
+      }
+
       this.reload();
-    }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
   }
 
   reload(): void {
