@@ -233,7 +233,6 @@ public class GroceryListService {
             ProductComparisonDto comparison =
                     comparisonService.getComparisonForProduct(pid);
 
-            // choose best offer among allowed stores
             var bestOfferOpt = comparison.getOffers().stream()
                     .filter(o -> allowedStores.contains(o.getStore()))
                     .min(Comparator.comparing(
@@ -259,6 +258,8 @@ public class GroceryListService {
             c.setProductId(pid);
             c.setName(it.getProduct().getName());
             c.setBrand(it.getProduct().getBrand());
+            c.setPackageQuantityValue(it.getProduct().getQuantity());
+            c.setPackageUnit(it.getProduct().getUnit());
             c.setQuantity(qty);
             c.setChosenStore(offer.getStore());
             c.setUnitPrice(unitPrice);

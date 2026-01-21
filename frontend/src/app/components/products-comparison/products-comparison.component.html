@@ -65,8 +65,8 @@
               </div>
             </div>
 
-            <div class="best-price-per-unit" *ngIf="getEffectivePricePerUnit(bo) as ppu">
-              {{ ppu | number : '1.2-2' }} RON / {{ product.unit }}
+            <div class="best-price-per-unit" *ngIf="getDisplayPPU(product, bo) as ppu">
+              {{ ppu | number:'1.2-2' }} RON / {{ getDisplayUnit(product.unit) }}
             </div>
           </div>
 
@@ -112,11 +112,8 @@
               </div>
             </div>
 
-            <div
-              class="offer-ppu"
-              *ngIf="getEffectivePricePerUnit(offer) as ppu"
-            >
-              {{ ppu | number : '1.2-2' }} RON / {{ product.unit }}
+            <div class="offer-ppu" *ngIf="getDisplayPPU(product, offer) as ppu">
+              {{ ppu | number:'1.2-2' }} RON / {{ getDisplayUnit(product.unit) }}
             </div>
 
             <div class="offer-badges">

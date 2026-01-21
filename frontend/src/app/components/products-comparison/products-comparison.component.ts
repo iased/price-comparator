@@ -78,7 +78,7 @@ export class ProductsComparisonComponent {
       },
       error: (err) => {
         console.error(err);
-        this.error = 'Could not load products.';
+        this.error = 'Nu s-au putut încărca produsele.';
         this.loading = false;
       },
     });
@@ -123,13 +123,6 @@ export class ProductsComparisonComponent {
     return offer.discountedPrice ?? offer.price;
   }
 
-  getEffectivePricePerUnit(offer: Offer): number | null {
-    if (offer.discountedPricePerUnit != null) {
-      return offer.discountedPricePerUnit;
-    }
-    return offer.pricePerUnit ?? null;
-  }
-
   hasDiscount(offer: Offer): boolean {
     return offer.discountedPrice != null && offer.discountedPrice !== offer.price;
   }
@@ -157,6 +150,33 @@ export class ProductsComparisonComponent {
   goToLogin() {
     const returnUrl = this.router.url;
     this.router.navigate(['/auth/login'], { queryParams: { returnUrl } });
+  }
+
+  getDisplayUnit(unit: string | null | undefined): string {
+    const u = (unit ?? '').toLowerCase();
+    if (u === 'g') return 'kg';
+    if (u === 'ml') return 'l';
+    return u || 'buc';
+  }
+
+  private toDisplayQuantity(quantity: number | null | undefined, unit: string | null | undefined): number | null {
+    if (quantity == null) return null;
+
+    const u = (unit ?? '').toLowerCase();
+    if (u === 'g') return quantity / 1000; 
+    if (u === 'ml') return quantity / 1000;
+    if (u === 'kg' || u === 'l') return quantity;
+    if (u === 'buc') return quantity;
+
+    return 1;
+  }
+
+  getDisplayPPU(product: ProductComparison, offer: Offer): number | null {
+    const qty = this.toDisplayQuantity(Number(product.quantity), product.unit);
+    if (!qty || qty === 0) return null;
+
+    const effectivePrice = this.getEffectivePrice(offer);
+    return effectivePrice / qty;
   }
 
 }

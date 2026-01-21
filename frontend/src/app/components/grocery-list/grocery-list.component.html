@@ -33,7 +33,7 @@
       <div class="row" *ngFor="let it of items; trackBy: trackById">
         <div class="info">
           <div class="name">{{ it.name | titlecase }}
-              <span class="qty-inline"> · {{ it.listQuantity }} buc</span>
+              <span class="qty-inline"> · {{ it.quantityValue }}{{ it.unit }}</span>
           </div>
           <div class="meta">{{ it.brand || '—' }} </div>
         </div>
@@ -48,11 +48,10 @@
           <button class="x" (click)="remove(it)">Șterge</button>
         </div>
       </div>
-
-      <app-grocery-list-comparison [items]="items"></app-grocery-list-comparison>
     </ng-container>
 
     <ng-template #loggedOutTpl></ng-template>
 
   </div>
+    <app-grocery-list-comparison [items]="items"></app-grocery-list-comparison>
 </div>
