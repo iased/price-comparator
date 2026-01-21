@@ -40,15 +40,16 @@
         <div class="row" *ngFor="let it of g.items; trackBy: trackByItem">
           <div class="left">
             <div class="name">{{ it.name | titlecase }}</div>
-            <div class="meta">{{ it.brand }} • x{{ it.quantity }}</div>
+            <div class="meta">{{ it.brand }} • {{ it.quantity }} buc</div>
           </div>
           <div class="right">
             <div class="price">{{ it.lineTotal | number:'1.2-2' }} lei</div>
-            <div class="unit">
-                {{ it.unitPrice | number:'1.2-2' }} lei/buc × {{ it.quantity }}
+              <div class="unit">
+                {{ it.unitPrice | number:'1.2-2' }}
+                lei/buc × {{ it.quantity }}
+              </div>
             </div>
-            </div>
-        </div>
+          </div>
       </div>
 
       <div class="total">

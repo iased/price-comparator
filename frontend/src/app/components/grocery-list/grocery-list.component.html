@@ -29,25 +29,30 @@
         </p>
       </div>
 
-    <div class="row" *ngFor="let it of items; trackBy: trackById">
-      <div class="info">
-        <div class="name">{{ it.name | titlecase }}
-            <span class="qty-inline"> · {{ it.listQuantity }} buc</span>
+    <ng-container *ngIf="auth.isLoggedIn(); else loggedOutTpl">
+      <div class="row" *ngFor="let it of items; trackBy: trackById">
+        <div class="info">
+          <div class="name">{{ it.name | titlecase }}
+              <span class="qty-inline"> · {{ it.listQuantity }} buc</span>
+          </div>
+          <div class="meta">{{ it.brand || '—' }} </div>
         </div>
-        <div class="meta">{{ it.brand || '—' }} </div>
+
+        <div class="qty">
+          <div class="stepper">
+              <button class="step" (click)="dec(it)">−</button>
+              <div class="val">{{ it.listQuantity }}</div>
+              <button class="step" (click)="inc(it)">+</button>
+          </div>
+
+          <button class="x" (click)="remove(it)">Șterge</button>
+        </div>
       </div>
 
-      <div class="qty">
-        <div class="stepper">
-            <button class="step" (click)="dec(it)">−</button>
-            <div class="val">{{ it.listQuantity }}</div>
-            <button class="step" (click)="inc(it)">+</button>
-        </div>
+      <app-grocery-list-comparison [items]="items"></app-grocery-list-comparison>
+    </ng-container>
 
-        <button class="x" (click)="remove(it)">Șterge</button>
-        </div>
-    </div>
+    <ng-template #loggedOutTpl></ng-template>
+
   </div>
-
-  <app-grocery-list-comparison [items]="items"></app-grocery-list-comparison>
 </div>

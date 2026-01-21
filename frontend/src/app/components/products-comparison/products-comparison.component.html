@@ -11,9 +11,9 @@
       <button
         class="add-to-list-btn"
         type="button"
-        (click)="addToList(product.productId)"
-        [disabled]="addingId === product.productId"
-        title="Adaugă în lista de cumpărături"
+        (click)="auth.isLoggedIn() ? addToList(product.productId) : goToLogin()"
+        [disabled]="!auth.isLoggedIn() || addingId === product.productId"
+        [title]="auth.isLoggedIn() ? 'Adaugă în lista de cumpărături' : 'Autentifică-te pentru a adăuga în listă'"
       >
         <span class="icon-swap" [class.show-check]="justAddedId === product.productId">
           <span class="icon plus"><span class="glyph">➕</span></span>
