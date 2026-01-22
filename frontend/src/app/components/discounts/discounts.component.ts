@@ -1,29 +1,19 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BehaviorSubject, combineLatest, map, shareReplay, startWith, switchMap, catchError, of } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Discount } from '../../models/discount.model';
 
 import { ApiService } from '../../services/api.service';
 import { FilterService } from '../../services/filter.service';
 
 type DiscountType = 'Today' | 'This Week';
 
-type Discount = {
-  id: number;
-
-  productName: string;
-  productBrand?: string | null;
-  productImageUrl?: string | null;
-
-  supermarketName: string;
-
-  originalPrice: number;
-  discountedPrice: number;
-
-  percentageOfDiscount: number;
-
-  fromDate: string; 
-  toDate: string;
+type DiscountView = Discount & {
+  fromJs: Date;
+  toJs: Date;
+  daysLeft: number;
+  endsLabel: string;
+  initial: string;
 };
 
 @Component({
@@ -37,9 +27,13 @@ type Discount = {
 export class DiscountsComponent {
   private readonly api = inject(ApiService);
   private readonly filter = inject(FilterService);
-  private readonly destroyRef = inject(DestroyRef);
 
   discountTypes: DiscountType[] = ['Today', 'This Week'];
+
+  typeLabels: Record<DiscountType, string> = {
+    'Today': 'Azi',
+    'This Week': 'Săptămâna asta',
+  };
 
   private readonly selectedType$ = new BehaviorSubject<DiscountType>('Today');
 
@@ -66,7 +60,7 @@ export class DiscountsComponent {
         startWith({ loading: true, error: null as string | null, data: [] as Discount[] }),
         catchError(err => {
           console.error(err);
-          return of({ loading: false, error: 'Failed to load discounts.', data: [] as Discount[] });
+          return of({ loading: false, error: 'Nu s-au putut încărca reducerile.', data: [] as Discount[] });
         })
       );
     }),
@@ -77,19 +71,20 @@ export class DiscountsComponent {
     map(([state, searchTerm, storeFilter]) => {
       const toJsDate = (s: string) => new Date(`${s}T00:00:00`);
 
-      const filtered = this.filterAndSort(state.data, searchTerm, storeFilter).map(d => {
-        const from = toJsDate(d.fromDate);
-        const to = toJsDate(d.toDate);
+      const filtered: DiscountView[] =
+        this.filterAndSort(state.data, searchTerm, storeFilter).map((d): DiscountView => {
+          const from = toJsDate(d.fromDate);
+          const to = toJsDate(d.toDate);
 
-        return {
-          ...d,
-          fromJs: from,
-          toJs: to,
-          daysLeft: this.getDaysLeft(to),
-          endsLabel: this.endsInLabel(to),
-          initial: ((d.productName ?? '?').trim()[0] ?? '?').toUpperCase(),
-        };
-      });
+          return {
+            ...d,
+            fromJs: from,
+            toJs: to,
+            daysLeft: this.getDaysLeft(to),
+            endsLabel: this.endsInLabel(to),
+            initial: ((d.productName ?? '?').trim()[0] ?? '?').toUpperCase(),
+          };
+        });
 
       return {
         loading: state.loading,
@@ -107,7 +102,7 @@ export class DiscountsComponent {
     if (type !== this.selectedType$.value) this.selectedType$.next(type);
   }
 
-  trackByDiscount = (_: number, d: Discount) =>
+  trackByDiscount = (_: number, d: DiscountView) =>
     d.id ?? `${d.productName ?? ''}-${d.supermarketName ?? ''}-${d.toDate ?? ''}`;
 
   private filterAndSort(data: Discount[], searchTerm: string, storeFilter: string | null): Discount[] {
@@ -151,9 +146,9 @@ export class DiscountsComponent {
     const ms = end.getTime() - now.getTime();
     const days = Math.ceil(ms / 86400000);
 
-    if (days <= 0) return 'Ends today';
-    if (days === 1) return 'Ends tomorrow';
-    return `Ends in ${days} days`;
+    if (days <= 0) return 'Expiră azi';
+    if (days === 1) return 'Expiră mâine';
+    return `Expiră în ${days} zile`;
   }
 
   getDaysLeft(toDate: any): number {

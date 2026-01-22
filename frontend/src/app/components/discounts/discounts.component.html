@@ -5,15 +5,15 @@
       *ngFor="let t of discountTypes"
       (click)="selectDiscountType(t)"
       [class.active]="t === vm.selectedType">
-      {{ t }}
+      {{ typeLabels[t] }}
     </button>
   </div>
 
-  <div *ngIf="vm.loading" class="state">Loading discounts…</div>
+  <div *ngIf="vm.loading" class="state">Se încarcă…</div>
   <div *ngIf="vm.error" class="state error">{{ vm.error }}</div>
 
   <div class="meta" *ngIf="!vm.loading && !vm.error">
-    {{ vm.total }} discounts found
+    {{ vm.total }} discounturi găsite
   </div>
 
   <div class="discounts-grid" *ngIf="!vm.loading && !vm.error">
@@ -32,7 +32,7 @@
         <div class="discount-top">
           <div>
             <div class="discount-name">{{ d.productName | titlecase }}</div>
-            <div class="discount-brand">{{ d.productBrand | titlecase}}</div>
+            <div class="discount-brand">{{ d.productBrand | titlecase}} • {{ d.quantity }}{{ d.unit }}</div>
           </div>
 
           <span class="store-pill" [ngClass]="'store-' + d.supermarketName.toLowerCase()">
@@ -52,11 +52,19 @@
           <span class="percent-pill">
             -{{ d.percentageOfDiscount }}%
           </span>
+
+          <span class="old-unit-price">
+            {{ d.unitPriceOriginal | number:'1.2-2' }} RON / {{ d.unitLabel }}
+          </span>
+
+          <span class="new-unit-price">
+            {{ d.unitPriceDiscounted | number:'1.2-2' }} RON / {{ d.unitLabel }}
+          </span>
         </div>
 
         <div class="discount-footer">
           <div class="discount-valid">
-            Valabilitate: {{ d.fromDate | date:'d MMM' }} – {{ d.toDate | date:'d MMM' }}
+            Valabilitate: {{ d.fromDate | date:'d MMMM' }} – {{ d.toDate | date:'d MMMM' }}
           </div>
 
           <div class="ends-label">
