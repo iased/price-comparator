@@ -15,5 +15,12 @@ public record DiscountDto(
 
         Integer percentageOfDiscount,
         LocalDate fromDate,
-        LocalDate toDate
+        LocalDate toDate,
+
+        BigDecimal quantity,
+        String unit,
+
+        BigDecimal unitPriceOriginal,
+        BigDecimal unitPriceDiscounted,
+        String unitLabel
 ) {}

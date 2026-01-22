@@ -13,4 +13,11 @@ export interface Discount {
   percentageOfDiscount: number;
   fromDate: string;
   toDate: string;
+
+  quantity: number;
+  unit: string;
+
+  unitPriceOriginal: number;
+  unitPriceDiscounted: number;
+  unitLabel: string;
 }

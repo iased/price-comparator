@@ -1,11 +1,7 @@
 package com.uo.price_comparator.repository;
 
-import com.uo.price_comparator.PriceComparatorApplication;
 import com.uo.price_comparator.dto.DiscountDto;
 import com.uo.price_comparator.model.Discount;
-import com.uo.price_comparator.model.Product;
-import com.uo.price_comparator.model.Supermarket;
-import com.uo.price_comparator.model.ProductPrice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,7 +9,6 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface DiscountRepository extends JpaRepository<Discount, Long> {
@@ -40,7 +35,12 @@ public interface DiscountRepository extends JpaRepository<Discount, Long> {
                   (pp.price * (100 - d.percentageOfDiscount) / 100),
                   d.percentageOfDiscount,
                   d.fromDate,
-                  d.toDate
+                  d.toDate,
+                  p.quantity,
+                  p.unit,
+                  null,
+                  null,
+                  null
               )
     from Discount d
     join d.product p
@@ -71,7 +71,12 @@ public interface DiscountRepository extends JpaRepository<Discount, Long> {
                      (pp.price * (100 - d.percentageOfDiscount) / 100),
                      d.percentageOfDiscount,
                      d.fromDate,
-                     d.toDate
+                     d.toDate,
+                     p.quantity,
+                     p.unit,
+                     null,
+                     null,
+                     null
                  )
         from Discount d
         join d.product p
