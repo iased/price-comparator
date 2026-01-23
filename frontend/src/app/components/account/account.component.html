@@ -1,0 +1,80 @@
+<div class="page">
+  <div class="header">
+    <div>
+      <h2>Contul meu</h2>
+      <p class="sub">
+        Actualizează datele profilului sau șterge contul.
+      </p>
+    </div>
+  </div>
+
+  <div class="card" *ngIf="loading">
+    Se încarcă…
+  </div>
+
+  <div class="card" *ngIf="!loading">
+    <div class="state error" *ngIf="error">
+      {{ error }}
+    </div>
+    <div class="state success" *ngIf="success">
+      {{ success }}
+    </div>
+
+    <div class="field">
+      <label>Nume</label>
+      <input
+        type="text"
+        [(ngModel)]="name"
+        placeholder="Numele tău"
+      />
+    </div>
+
+    <div class="field">
+      <label>Email</label>
+      <input type="text" [value]="email" disabled />
+    </div>
+
+    <div class="actions">
+      <button
+        class="btn btn-primary"
+        (click)="save()"
+        [disabled]="saving || deleting"
+      >
+        {{ saving ? 'Se salvează…' : 'Salvează' }}
+      </button>
+
+      <button class="btn btn-danger" (click)="openDeleteModal()">
+        Șterge contul
+      </button>
+
+      <div class="modal-backdrop" *ngIf="showDeleteModal">
+        <div class="modal">
+          <h3>Confirmă ștergerea</h3>
+          <p class="muted">
+            Această acțiune este permanentă. Introdu parola pentru confirmare.
+          </p>
+
+          <div class="modal-field">
+            <label for="deletePw">Parolă</label>
+            <input
+              id="deletePw"
+              type="password"
+              [(ngModel)]="deletePassword"
+              autocomplete="current-password"
+              (keydown.enter)="confirmDelete()"
+            />
+          </div>
+
+          <div class="actions">
+            <button class="btn btn-ghost" (click)="cancelDelete()" [disabled]="deleting">
+              Anulează
+            </button>
+            <button class="btn btn-danger" (click)="confirmDelete()" [disabled]="deleting">
+              {{ deleting ? 'Se șterge...' : 'Șterge definitiv' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

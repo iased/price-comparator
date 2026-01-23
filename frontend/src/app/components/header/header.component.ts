@@ -18,6 +18,8 @@ export class HeaderComponent {
     public auth: AuthService
   ) {}
 
+  userMenuOpen = false;
+
   onSearch(term: string) {
     this.filter.setSearch(term);
   }
@@ -42,5 +44,10 @@ export class HeaderComponent {
 
   logout() {
     this.auth.logout();
+    this.router.navigate(['/products']);
+  }
+
+  closeUserMenu() {
+    this.userMenuOpen = false;
   }
 }

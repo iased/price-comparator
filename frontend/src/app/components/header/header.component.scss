@@ -221,6 +221,11 @@
   word-break: break-word;
 }
 
+.drop-item.link {
+  display: block;
+  text-decoration: none;
+}
+
 .drop-item {
   width: 100%;
   border: 0;
