@@ -34,6 +34,14 @@
                 <div class="drop-user">{{ auth.getUserNameOrEmail() }}</div>
               </div>
 
+              <a
+                class="drop-item link"
+                routerLink="/account"
+                (click)="closeUserMenu()"
+              >
+                Contul meu
+              </a>
+
               <button class="drop-item danger" type="button" (click)="logout()">Logout</button>
             </ng-template>
           </div>

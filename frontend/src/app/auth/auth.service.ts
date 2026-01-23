@@ -77,4 +77,16 @@ export class AuthService {
     const t = localStorage.getItem(TOKEN_KEY);
     return !!t && t.length > 10;
   }
+
+  updateStoredUser(patch: { name?: string; email?: string }) {
+    const raw = localStorage.getItem('pc_user');
+    let u = { email: '', name: '' };
+
+    try {
+      if (raw) u = { ...u, ...JSON.parse(raw) };
+    } catch {}
+
+    const next = { ...u, ...patch };
+    localStorage.setItem('pc_user', JSON.stringify(next));
+  }
 }
