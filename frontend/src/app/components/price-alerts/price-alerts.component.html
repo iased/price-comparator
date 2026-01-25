@@ -1,0 +1,156 @@
+<div class="alerts-page">
+  <div class="header">
+    <div>
+      <h2>Alertă de preț</h2>
+      <p class="sub">Află când prețul unui produs ajunge sub pragul setat.</p>
+    </div>
+
+    <button
+      class="btn btn-primary"
+      (click)="openCreate()"
+      [disabled]="loading || !isLoggedIn"
+    >
+      + Alertă nouă
+    </button>
+  </div>
+
+  <ng-container *ngIf="isLoggedIn; else guest">
+    <div class="card" *ngIf="showCreate">
+      <div class="form">
+        <div class="form-row">
+          <label>Produs</label>
+          <input
+            class="input"
+            [ngModel]="q"
+            (ngModelChange)="onQueryChange($event)"
+            placeholder="Caută produs"
+            autocomplete="off"
+          />
+
+          <div class="dropdown" *ngIf="results.length">
+            <button
+              class="dropdown-item"
+              *ngFor="let r of results"
+              (click)="pickProduct(r)"
+              type="button"
+            >
+              <div class="drop-left">
+                <div class="drop-thumb">
+                  <img *ngIf="r.imageUrl; else noImg" [src]="r.imageUrl" [alt]="r.name" />
+                  <ng-template #noImg>
+                    <div class="drop-thumb-fallback">🛒</div>
+                  </ng-template>
+                </div>
+
+                <div class="drop-text">
+                  <div class="name">{{ r.name | titlecase }}</div>
+                  <div class="meta">
+                    {{ r.brand }} • {{ r.quantity }} {{ r.unit }}
+                  </div>
+                </div>
+              </div>
+            </button>
+          </div>
+
+          <div class="hint" *ngIf="selected">
+            Selectat: <b>{{ selected.name }}</b> ({{ selected.brand }})
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label>Preț dorit</label>
+          <input
+            class="input"
+            type="number"
+            step="0.01"
+            [(ngModel)]="targetPrice"
+            placeholder="ex: 9.99"
+          />
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-ghost" type="button" (click)="cancelCreate()" [disabled]="loading">
+            Renunță
+          </button>
+          <button
+            class="btn btn-primary"
+            type="button"
+            (click)="create()"
+            [disabled]="loading || !selected || !targetPrice"
+          >
+            Creează
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" *ngIf="!loading && !showCreate && alerts.length === 0">
+      <div class="empty">
+        <p>Nu există nicio alertă setată.</p>
+      </div>
+    </div>
+
+    <div class="list" *ngIf="!loading && alerts.length">
+      <div
+        class="alert"
+        *ngFor="let a of alerts; trackBy: trackById"
+        [class.reached]="a.reached"
+      >
+        <div class="left">
+          <div class="thumb">
+            <img *ngIf="a.imageUrl; else noImg2" [src]="a.imageUrl" [alt]="a.productName" />
+            <ng-template #noImg2>
+              <div class="thumb-fallback">🛒</div>
+            </ng-template>
+          </div>
+
+          <div class="info">
+            <div class="name">{{ a.productName | titlecase }}</div>
+
+            <div class="meta">
+              <span *ngIf="a.brand">{{ a.brand }}</span>
+              <span *ngIf="a.quantity">• {{ a.quantity }}{{ a.unit }}</span>
+            </div>
+
+            <div class="lines">
+              <div class="line">
+                <span class="lbl">Preț țintă:</span>
+                {{ a.targetPrice | number:'1.2-2' }} lei
+              </div>
+
+              <div class="line">
+                <span class="lbl">Cel mai bun preț acum:</span>
+                {{ a.currentBestPrice | number:'1.2-2' }} lei
+                <span class="dot" *ngIf="a.currentBestStoreName">•</span>
+                <span class="lbl" *ngIf="a.currentBestStoreName">
+                  {{ a.currentBestStoreName }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="right">
+          <div class="status" [class.ok]="a.reached">
+            {{ a.reached ? 'Preț țintă atins ✓' : 'Preț țintă neatins' }}
+          </div>
+
+          <button class="x" type="button" (click)="remove(a)">Șterge</button>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #guest>
+    <div class="card" *ngIf="!loading">
+      <div class="empty">
+        <p>Pentru a utiliza alertele de preț, este necesar să fii autentificat.</p>
+
+        <div class="empty-actions">
+          <button class="btn btn-primary" type="button" (click)="goToLogin()">Intră în cont</button>
+          <button class="btn btn-ghost" type="button" (click)="goToRegister()">Creează cont</button>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</div>

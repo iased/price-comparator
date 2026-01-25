@@ -4,6 +4,7 @@ import { ProductsComparisonComponent } from './components/products-comparison/pr
 import { DiscountsComponent } from './components/discounts/discounts.component';
 import { GroceryListComponent } from './components/grocery-list/grocery-list.component';
 import { AccountComponent } from './components/account/account.component';
+import { PriceAlertsComponent } from './components/price-alerts/price-alerts.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'products', pathMatch: 'full' },
@@ -12,4 +13,5 @@ export const routes: Routes = [
   { path: 'grocery-list', component: GroceryListComponent },
   { path: 'auth', children: AUTH_ROUTES },
   { path: 'account', component: AccountComponent, data: { hideTabs: true } },
+  { path: 'price-alerts', component: PriceAlertsComponent }
 ];
