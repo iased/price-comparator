@@ -4,6 +4,7 @@ import com.uo.price_comparator.auth.dto.*;
 import com.uo.price_comparator.security.JwtService;
 import com.uo.price_comparator.user.User;
 import com.uo.price_comparator.user.UserRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -46,5 +47,15 @@ public class AuthService {
         }
 
         return new AuthResponse(jwt.generateToken(user.getEmail()), user.getEmail(), user.getName());
+    }
+
+    public User getCurrentUser() {
+        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userRepo.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Utilizatorul nu a fost găsit."));
+    }
+
+    public Long getCurrentUserId() {
+        return getCurrentUser().getId();
     }
 }
