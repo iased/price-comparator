@@ -59,21 +59,32 @@
           type="text"
           placeholder="Caută produse după nume sau brand..."
           (input)="onSearch(searchBox.value)"
+          (keydown.enter)="onSearchEnter(searchBox.value)"
         />
       </div>
 
-      <div class="select-wrap">
-        <select
-          class="store-select"
-          #storeSelect
-          (change)="onStoreChange(storeSelect.value)"
-        >
-          <option value="">Toate magazinele</option>
-          <option value="Lidl">Lidl</option>
-          <option value="Profi">Profi</option>
-          <option value="Kaufland">Kaufland</option>
-        </select>
+      <div class="store-menu" tabindex="0">
+        <button class="store-trigger" type="button" aria-label="Magazin">
+          <span class="store-text">{{ selectedStoreLabel }}</span>
+          <span class="chev" aria-hidden="true"></span>
+        </button>
+
+        <div class="store-dropdown">
+          <button class="drop-item" type="button" (click)="pickStore(null)">
+            Toate magazinele
+          </button>
+          <button class="drop-item" type="button" (click)="pickStore(1)">
+            Lidl
+          </button>
+          <button class="drop-item" type="button" (click)="pickStore(2)">
+            Profi
+          </button>
+          <button class="drop-item" type="button" (click)="pickStore(3)">
+            Kaufland
+          </button>
+        </div>
       </div>
+
     </div>
 
   </div>

@@ -23,8 +23,11 @@ public class ProductComparisonController {
     }
 
     @GetMapping("/comparison")
-    public List<ProductComparisonDto> getAll() {
-        return productComparisonService.getComparison();
+    public List<ProductComparisonDto> getAll(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) Long storeId
+    ) {
+        return productComparisonService.getComparison(q, storeId);
     }
 
     @GetMapping("/comparison/{productId}")

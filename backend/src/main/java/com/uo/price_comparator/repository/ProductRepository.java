@@ -19,4 +19,26 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         LIMIT 10
         """, nativeQuery = true)
     List<Product> searchDiacriticsInsensitive(@Param("q") String q);
+
+    @Query(value = """
+        SELECT DISTINCT p.*
+        FROM products p
+        JOIN product_prices pp ON pp.product_id = p.id
+        WHERE pp.supermarket_id = :storeId
+          AND (
+            unaccent(lower(p.name))  LIKE unaccent(lower(concat('%', :q, '%')))
+            OR unaccent(lower(p.brand)) LIKE unaccent(lower(concat('%', :q, '%')))
+          )
+        ORDER BY p.name
+        """, nativeQuery = true)
+    List<Product> searchAllDiacriticsInsensitiveInStore(@Param("q") String q, @Param("storeId") Long storeId);
+
+    @Query(value = """
+        SELECT DISTINCT p.*
+        FROM products p
+        JOIN product_prices pp ON pp.product_id = p.id
+        WHERE pp.supermarket_id = :storeId
+        ORDER BY p.name
+        """, nativeQuery = true)
+    List<Product> findAllAvailableInStore(@Param("storeId") Long storeId);
 }
