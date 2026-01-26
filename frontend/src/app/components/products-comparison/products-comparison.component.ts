@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { ProductComparison, Offer } from '../../models/product-comparison.model';
 import { ApiService } from '../../services/api.service';
 import { FilterService } from '../../services/filter.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../auth/auth.service';
 
 @Component({
@@ -14,35 +14,74 @@ import { AuthService } from '../../auth/auth.service';
 })
 export class ProductsComparisonComponent {
   products: ProductComparison[] = [];
-  filteredProducts: ProductComparison[] = [];
   addingId: number | null = null;
   justAddedId: number | null = null;
 
   loading = false;
   error: string | null = null;
 
-  private searchTerm = '';
-  storeFilter: string | null = null;
+  private q = '';
+  private storeId: number | null = null;
+  private searchTimer: any;
+  private initialized = false;
 
   constructor(
     private api: ApiService,
     private filter: FilterService,
     public auth: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    this.loadProducts();
-
     this.filter.search$.subscribe(term => {
-      this.searchTerm = (term ?? '').toLowerCase();
-      this.applyFilters();
+      if (!this.initialized) return;
+      this.q = (term ?? '').trim();
+      clearTimeout(this.searchTimer);
+      this.searchTimer = setTimeout(() => this.loadProducts(), 300);
     });
 
-    this.filter.store$.subscribe(store => {
-      this.storeFilter = store;
-      this.applyFilters();
+    this.filter.storeId$.subscribe(id => {
+      if (!this.initialized) return;
+      this.storeId = id;
+      this.loadProducts();
     });
+
+    this.route.queryParamMap.subscribe(pm => {
+      const q = (pm.get('q') ?? '').trim();
+      const storeIdParam = pm.get('storeId');
+      const storeId = storeIdParam != null ? Number(storeIdParam) : null;
+
+      this.q = q;
+      this.storeId = Number.isFinite(storeId as any) ? storeId : null;
+      this.initialized = true;
+
+      this.loadProducts();
+    });
+  }
+
+  loadProducts(): void {
+    this.loading = true;
+    this.error = null;
+
+    const q = this.q.length >= 2 ? this.q : '';
+    const storeId = this.storeId;
+
+    this.api.getProductComparisons(q, storeId).subscribe({
+      next: (products) => {
+        this.products = products;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error(err);
+        this.error = 'Nu s-au putut încărca produsele.';
+        this.loading = false;
+      },
+    });
+  }
+
+  get filteredProducts() {
+    return this.products;
   }
 
   addToList(productId: number) {
@@ -64,59 +103,6 @@ export class ProductsComparisonComponent {
         this.addingId = null;
       }
     });
-  }
-
-  loadProducts(): void {
-    this.loading = true;
-    this.error = null;
-
-    this.api.getProductComparisons().subscribe({
-      next: (products) => {
-        this.products = products;
-        this.applyFilters();
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error(err);
-        this.error = 'Nu s-au putut încărca produsele.';
-        this.loading = false;
-      },
-    });
-  }
-
-  private applyFilters(): void {
-    let data = [...this.products];
-
-    if (this.searchTerm) {
-      data = data.filter((p) => {
-        const haystack = `${p.name} ${p.brand} ${p.category}`.toLowerCase();
-        return haystack.includes(this.searchTerm);
-      });
-    }
-
-    if (this.storeFilter) {
-      const sf = this.storeFilter.toLowerCase();
-
-      data = data.filter((p) =>
-        (p.offers ?? []).some((o) => o.store.toLowerCase() === sf)
-      );
-    }
-
-    data = data.map((p) => {
-      const offers = p.offers ?? [];
-      const bestOffer =
-        offers.length === 0
-          ? null
-          : offers.reduce((best, current) =>
-              this.getEffectivePrice(current) < this.getEffectivePrice(best)
-                ? current
-                : best
-            );
-
-      return { ...p, bestOffer } as ProductComparison;
-    });
-
-    this.filteredProducts = data;
   }
 
   getEffectivePrice(offer: Offer): number {

@@ -5,6 +5,7 @@ import com.uo.price_comparator.dto.ProductComparisonDto;
 import com.uo.price_comparator.model.Product;
 import com.uo.price_comparator.model.ProductPrice;
 import com.uo.price_comparator.repository.ProductPriceRepository;
+import com.uo.price_comparator.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -17,16 +18,59 @@ import java.util.stream.Collectors;
 public class ProductComparisonService {
     private final ProductPriceRepository productPriceRepository;
     private final DiscountService discountService;
+    private final ProductRepository productRepository;
 
     public ProductComparisonService(ProductPriceRepository productPriceRepository,
-                                    DiscountService discountService) {
+                                    DiscountService discountService,
+                                    ProductRepository productRepository) {
         this.productPriceRepository = productPriceRepository;
         this.discountService = discountService;
+        this.productRepository = productRepository;
     }
 
     public List<ProductComparisonDto> getComparison() {
         LocalDate today = LocalDate.now();
         List<ProductPrice> latestPrices = productPriceRepository.findLatestPricesForAllProducts();
+
+        Map<Long, List<ProductPrice>> byProduct = latestPrices.stream()
+                .collect(Collectors.groupingBy(pp -> pp.getProduct().getId()));
+
+        List<ProductComparisonDto> result = new ArrayList<>();
+        for (List<ProductPrice> prices : byProduct.values()) {
+            result.add(buildDto(prices, today));
+        }
+
+        result.sort(Comparator.comparing(ProductComparisonDto::getName, String.CASE_INSENSITIVE_ORDER));
+        return result;
+    }
+
+    public List<ProductComparisonDto> getComparison(String q, Long storeId) {
+        LocalDate today = LocalDate.now();
+
+        String query = (q == null) ? null : q.trim();
+        boolean hasQuery = query != null && query.length() >= 2;
+
+        List<Product> products;
+
+        if (hasQuery) {
+            if (storeId == null) {
+                products = productRepository.searchDiacriticsInsensitive(query);
+            } else {
+                products = productRepository.searchAllDiacriticsInsensitiveInStore(query, storeId);
+            }
+        } else {
+            if (storeId == null) {
+                products = productRepository.findAll();
+            } else {
+                products = productRepository.findAllAvailableInStore(storeId);
+            }
+        }
+
+        if (products.isEmpty()) return List.of();
+
+        List<Long> ids = products.stream().map(Product::getId).toList();
+
+        List<ProductPrice> latestPrices = productPriceRepository.findLatestPricesForProducts(ids);
 
         Map<Long, List<ProductPrice>> byProduct = latestPrices.stream()
                 .collect(Collectors.groupingBy(pp -> pp.getProduct().getId()));
@@ -46,7 +90,7 @@ public class ProductComparisonService {
         List<ProductPrice> pricesForProduct = productPriceRepository.findLatestPricesForProduct(productId);
 
         if (pricesForProduct.isEmpty()) {
-            throw new RuntimeException("No prices for product " + productId);
+            throw new RuntimeException("Nu există prețuri pentru produsul " + productId);
         }
 
         return buildDto(pricesForProduct, today);

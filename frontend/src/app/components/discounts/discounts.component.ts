@@ -43,9 +43,14 @@ export class DiscountsComponent {
     shareReplay({ bufferSize: 1, refCount: true })
   );
 
-  private readonly storeFilter$ = this.filter.store$.pipe(
-    startWith<string | null>(null),
-    map(store => (store ? store.toLowerCase().trim() : null)),
+  private readonly storeFilter$ = this.filter.storeId$.pipe(
+    startWith<number | null>(null),
+    map(id => {
+      if (id === 1) return 'lidl';
+      if (id === 2) return 'profi';
+      if (id === 3) return 'kaufland';
+      return null;
+    }),
     shareReplay({ bufferSize: 1, refCount: true })
   );
 

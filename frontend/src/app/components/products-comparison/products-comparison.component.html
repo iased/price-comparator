@@ -21,7 +21,6 @@
         </span>
       </button>
 
-      <!-- left: image placeholder -->
       <div class="product-image">
         <img
           *ngIf="product.imageUrl; else placeholder"
@@ -36,10 +35,7 @@
         </ng-template>
       </div>
 
-
-      <!-- right: content -->
       <div class="product-content">
-        <!-- header row -->
         <div class="product-header">
           <div>
             <div class="product-name">{{ product.name | titlecase }}</div>
@@ -50,7 +46,6 @@
         </div>
 
         <div class="price-column">
-        <!-- best price strip -->
         <div class="best-price-strip" *ngIf="product.bestOffer as bo">
           <div>
             <div class="label">Cel mai bun preț</div>
@@ -88,13 +83,11 @@
 
         </div>
 
-        <!-- offers row -->
         <div class="offers-row" [ngClass]="'offers-' + product.offers.length">
           <ng-container *ngFor="let offer of product.offers">
           <div
             class="offer-card"
             [class.best]="isBestOffer(product, offer)"
-            *ngIf="!storeFilter || offer.store === storeFilter"
           >
             <div class="offer-store">{{ offer.store }}</div>
 
@@ -137,7 +130,5 @@
         </div>
         </div>
       </div>
-      <!-- /product-content -->
     </div>
-    <!-- /product-card -->
   </div>

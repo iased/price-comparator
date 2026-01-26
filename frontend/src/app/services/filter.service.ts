@@ -5,14 +5,14 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root',
 })
 export class FilterService {
-  private storeSubject = new BehaviorSubject<string | null>(null);
+  private storeIdSubject = new BehaviorSubject<number | null>(null);
   private searchSubject = new BehaviorSubject<string>('');
 
-  readonly store$ = this.storeSubject.asObservable();
+  readonly storeId$ = this.storeIdSubject.asObservable();
   readonly search$ = this.searchSubject.asObservable();
 
-  setStore(store: string | null) {
-    this.storeSubject.next(store);
+  setStoreId(storeId: number | null) {
+    this.storeIdSubject.next(storeId);
   }
 
   setSearch(term: string) {

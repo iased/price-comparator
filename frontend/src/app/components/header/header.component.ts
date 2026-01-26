@@ -12,20 +12,45 @@ import { AuthService } from '../../auth/auth.service';
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent {
+  userMenuOpen = false;
+  selectedStoreId: number | null = null;
+  currentStoreId: number | null = null;
+
   constructor(
     private filter: FilterService,
     private router: Router,
     public auth: AuthService
   ) {}
 
-  userMenuOpen = false;
-
   onSearch(term: string) {
     this.filter.setSearch(term);
   }
 
-  onStoreChange(store: string) {
-    this.filter.setStore(store || null);
+  pickStore(id: number | null) {
+    this.selectedStoreId = id;
+    this.filter.setStoreId(id);
+  }
+
+  get selectedStoreLabel(): string {
+    switch (this.selectedStoreId) {
+      case 1: return 'Lidl';
+      case 2: return 'Profi';
+      case 3: return 'Kaufland';
+      default: return 'Toate magazinele';
+    }
+  }
+
+  onSearchEnter(term: string) {
+    const q = (term ?? '').trim();
+    if (q.length < 2) return;
+
+    const url = this.router.url.split('?')[0];
+    if (url !== '/products' && url !== '/discounts') {
+      const queryParams: any = { q };
+      if (this.selectedStoreId != null) queryParams.storeId = this.selectedStoreId;
+
+      this.router.navigate(['/products'], { queryParams });
+    }
   }
 
   goToList() {
