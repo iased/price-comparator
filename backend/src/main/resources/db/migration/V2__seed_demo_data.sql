@@ -1,5 +1,3 @@
-BEGIN;
-
 -- Supermarkets
 INSERT INTO supermarkets (name) VALUES ('Lidl')     ON CONFLICT (name) DO NOTHING;
 INSERT INTO supermarkets (name) VALUES ('Profi')    ON CONFLICT (name) DO NOTHING;
@@ -800,5 +798,3 @@ SELECT product_id, supermarket_id, from_date, to_date, percentage_of_discount
 FROM d
 WHERE product_id IS NOT NULL AND supermarket_id IS NOT NULL
 ON CONFLICT (product_id, supermarket_id, from_date, to_date) DO NOTHING;
-
-COMMIT;
