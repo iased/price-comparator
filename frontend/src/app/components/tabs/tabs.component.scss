@@ -45,6 +45,22 @@
 }
 
 @media (max-width: 480px) {
-  .tabs-container { width: 100%; display: flex; }
-  .tab { flex: 1; padding: 6px 12px; font-size: 13px; }
+  .tabs-container {
+    width: 100%;
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 3px 6px;
+  }
+
+  .tabs-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab {
+    flex: 0 0 auto;
+    padding: 6px 14px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
 }
