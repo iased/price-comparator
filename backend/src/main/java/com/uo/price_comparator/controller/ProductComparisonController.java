@@ -25,9 +25,10 @@ public class ProductComparisonController {
     @GetMapping("/comparison")
     public List<ProductComparisonDto> getAll(
             @RequestParam(required = false) String q,
-            @RequestParam(required = false) Long storeId
+            @RequestParam(required = false) Long storeId,
+            @RequestParam(required = false) String category
     ) {
-        return productComparisonService.getComparison(q, storeId);
+        return productComparisonService.getComparison(q, storeId, category);
     }
 
     @GetMapping("/comparison/{productId}")
@@ -36,8 +37,9 @@ public class ProductComparisonController {
     }
 
     @GetMapping("/search")
-    public List<ProductSearchDto> search(@RequestParam String q) {
-        return productService.searchProducts(q);
+    public List<ProductSearchDto> search(@RequestParam String q,
+                                         @RequestParam(required = false) String category) {
+        return productService.searchProducts(q, category);
     }
 }
 

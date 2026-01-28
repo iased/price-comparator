@@ -1,12 +1,12 @@
-  <div class="meta" *ngIf="filteredProducts.length">
-    {{ filteredProducts.length }} produse găsite
+  <div class="meta">
+    {{ products.length }} produse găsite
   </div>
 
   <div *ngIf="loading" class="state">Se încarcă…</div>
   <div *ngIf="error" class="state error">{{ error }}</div>
 
   <div class="product-list" *ngIf="!loading && !error">
-    <div *ngFor="let product of filteredProducts" class="product-card">
+    <div *ngFor="let product of products" class="product-card">
 
       <button
         class="add-to-list-btn"
@@ -72,7 +72,7 @@
               </ng-container>
 
               <ng-template #tieTpl>
-                Cel mai bun preț la {{ best.length }} magazine
+                Cel mai bun preț în {{ best.length }} magazine
               </ng-template>
             </div>
 

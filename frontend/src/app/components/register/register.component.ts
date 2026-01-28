@@ -36,12 +36,12 @@ export class RegisterComponent {
       this.error = 'Completează numele, email-ul și parola.';
       return;
     }
-    if (this.password.length < 6) {
-      this.error = 'Parola trebuie să aibă cel puțin 6 caractere.';
-      return;
-    }
     if (this.password !== this.confirmPassword) {
       this.error = 'Parolele nu coincid.';
+      return;
+    }
+    if (this.password.length < 6) {
+      this.error = 'Parola trebuie să aibă cel puțin 6 caractere.';
       return;
     }
 
@@ -55,6 +55,8 @@ export class RegisterComponent {
       error: (e) => {
         this.error =
           e?.error?.message ||
+          e?.error?.detail ||
+          (typeof e?.error === 'string' ? e.error : null) ||
           'Nu s-a putut crea contul. Încearcă din nou.';
         this.loading = false;
       },

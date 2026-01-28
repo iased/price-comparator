@@ -19,13 +19,16 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public List<ProductSearchDto> searchProducts(String q) {
+    public List<ProductSearchDto> searchProducts(String q, String category) {
         String query = (q == null) ? "" : q.trim();
         if (query.length() < 2) return List.of();
 
+        String cat = (category == null || category.isBlank()) ? null : category.trim();
+
         return productRepository
-                .searchDiacriticsInsensitive(query)
+                .searchDiacriticsInsensitiveLimited(query, cat)
                 .stream()
+                .filter(p -> cat == null || (p.getCategory() != null && p.getCategory().equalsIgnoreCase(cat)))
                 .map(p -> new ProductSearchDto(
                         p.getId(),
                         p.getName(),

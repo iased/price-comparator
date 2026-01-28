@@ -1,6 +1,6 @@
 # Price Comparator
 
-A web application for comparing grocery prices across multiple supermarket chains. 
+A web application for comparing grocery prices across multiple supermarket chains, helping users identify the best deals, active discounts, and optimize shopping baskets across stores.
 
 ## Tech stack
 
@@ -10,7 +10,8 @@ A web application for comparing grocery prices across multiple supermarket chain
 - Angular 19.2.3
 - PostgreSQL 15 (via Docker)
 - Docker: For full application containerization (backend, frontend build and database)
-- Docker Compose: For orchestrating services
+- Docker Compose – service orchestration
+- Flyway – database schema versioning and migrations
 
 ## Setup instructions
 
@@ -20,18 +21,18 @@ Ensure you have the following installed:
 - **Git**: For cloning the repo.
 
 Check with `git --version`.
-- **Docker and Docker Compose**: Docker Desktop is recommended, as it includes Compose. 
+- **Docker and Docker Compose**: Docker Desktop is recommended
 
 Check with:
-`docker --version` and 
 
-\# Docker Compose v2+\
+`docker --version` 
+
 `docker compose version`
 
-\# Docker Compose v1:\
-`docker-compose version`
+(or `docker-compose version` for Compose v1)
 
-You do not need local Java, Maven, Node.js, or npm installations; Docker handles building and running everything in containers.
+You do **not** need local Java, Maven, Node.js, or npm installations.\
+Docker handles building and running everything in containers.
 
 ### 1. Clone the repository
 
@@ -41,48 +42,65 @@ You do not need local Java, Maven, Node.js, or npm installations; Docker handles
 
 ### 2. Database and Environment setup
 
-The PostgreSQL database is containerized and managed via Docker Compose, with demo credentials (username: `postgres`, password: `postgres`) as fallbacks for quick starts.
+The PostgreSQL database is containerized and managed via Docker Compose.\
+Demo credentials are provided for easy startup.
 
-1. Copy `.env.example` to `.env`:
+Copy `.env.example` to `.env`:
 
-Linux/macOS: `cp .env.example .env`
+- Linux/macOS: `cp .env.example .env`
 
-Windows PowerShell: `copy-item .env.example .env`
+- Windows PowerShell: `copy-item .env.example .env`
 
-Windows cmd.exe: `copy .env.example .env`
+- Windows cmd: `copy .env.example .env`
 
-`.env.example` includes demo credentials that match the fallbacks in `docker-compose.yml` and `application.properties`. This enables the app to run without further changes. 
+The `.env.example` file contains demo credentials that match the fallbacks in `docker-compose.yml` and `application.properties`, allowing the application to run without further changes. 
 
 ### 3. Build and Run the Entire Application with Docker
 
-This builds the backend (Spring Boot JAR with embedded Angular static files) and starts both the application and PostgreSQL containers.
+This builds the Spring Boot backend (which serves the Angular frontend as static files) and starts both the application and PostgreSQL containers.
 
-1. From the project root (contains `docker-compose.yml`), build and start:
+From the project root (where `docker-compose.yml` is located):
     
-    \# Docker Compose v2+\
-    `docker compose up --build -d`   
+`docker compose up --build -d`   
 
-    \# Docker Compose v1\
-    `docker-compose up --build -d`
+(or `docker-compose up --build -d` for Compose v1)
 
-2. Wait for the build and startup. This may take a few minutes the first time due to dependency downloads.
+The first build may take a few minutes due to dependency downloads.
 
 ### 4. Access the Application
 
-**Full App (Frontend served by Backend)**:\
- Open `http://localhost:8080` in your browser.
+**Full Application (frontend served by backend)**:\
 
-  The Angular app is built and served as static files from Spring Boot.
+ Open `http://localhost:8080` in your browser.
 
 ### 5. Stopping and Cleanup
 From the project root:
 
-- **Stop containers (keep data)**: 
+- **Stop containers (keep database data)**: 
 
 `docker compose down`
-- **Reset containers and remove volumes (wipe DB)**: 
+- **Stop containers and reset everything (wipe database):** 
 
 `docker compose down -v`
+
+## Demo Data & First Run
+
+On first startup, the database schema is automatically created using Flyway migrations.
+
+The application includes demo data (products, supermarkets, prices, and discounts), allowing all features to be tested immediately without manual data entry.
+
+If the database volume already exists and you want to reinitialize everything:
+
+`docker compose down -v`
+
+`docker compose up --build`
+
+## Authentication
+
+Some features, such as price alerts and grocery lists, require authentication.
+
+Users can create a new account directly from the application interface.
+No email confirmation is required for demo purposes.
 
 ## Project structure overview
 - price-comparator/
@@ -111,14 +129,13 @@ From the project root:
     - README
 
 ## Core functionality
-**Current Implementation**
 
-Fully containerized setup: Spring Boot backend serves the built Angular frontend, connected to PostgreSQL via Docker.\
-Secure configuration via `.env` file.\
-Database persistence via Docker volumes.
-
-**Planned Features**
-
-RESTful APIs for retrieving product information, discounts, and best-buy recommendations.\
-Price alerts for user-defined target prices.\
-Basket optimization to group items by store for cost-effective shopping.
+- Fully containerized setup: Spring Boot backend serves the built Angular frontend, connected to PostgreSQL via Docker
+- Database persistence via Docker volumes
+- Product price comparison across multiple supermarkets
+- Best price detection (including active discounts)
+- Discount listing (Today / This Week)
+- Search and filtering by product name, category, and store
+- User authentication and account management using JWT (profile update, account deletion)
+- Grocery list creation with basket optimization, grouping items by store to minimize overall shopping cost
+- Price alerts for user-defined target prices
