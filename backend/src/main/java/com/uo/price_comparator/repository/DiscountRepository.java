@@ -93,6 +93,7 @@ public interface DiscountRepository extends JpaRepository<Discount, Long> {
          )
         where d.fromDate <= :endOfWeek
           and d.toDate >= :startOfWeek
+          and d.toDate >= :today
         order by d.percentageOfDiscount desc, d.toDate asc
     """)
     List<DiscountDto> findDiscountsForThisWeek(@Param("startOfWeek") LocalDate startOfWeek,
