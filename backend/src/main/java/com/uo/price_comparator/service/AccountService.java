@@ -3,6 +3,7 @@ package com.uo.price_comparator.service;
 import com.uo.price_comparator.dto.AccountDto;
 import com.uo.price_comparator.dto.UpdateAccountRequest;
 import com.uo.price_comparator.repository.GroceryListRepository;
+import com.uo.price_comparator.repository.PriceAlertRepository;
 import com.uo.price_comparator.user.User;
 import com.uo.price_comparator.user.UserRepository;
 import org.springframework.http.HttpStatus;
@@ -17,14 +18,17 @@ public class AccountService {
     private final UserRepository userRepository;
     private final GroceryListRepository groceryListRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PriceAlertRepository priceAlertRepository;
 
     public AccountService(UserRepository userRepository,
                           GroceryListRepository groceryListRepository,
-                          PasswordEncoder passwordEncoder
+                          PasswordEncoder passwordEncoder,
+                          PriceAlertRepository priceAlertRepository
     ) {
         this.userRepository = userRepository;
         this.groceryListRepository = groceryListRepository;
         this.passwordEncoder = passwordEncoder;
+        this.priceAlertRepository = priceAlertRepository;
     }
 
     private User getCurrentUser(String email) {
@@ -62,6 +66,7 @@ public class AccountService {
         }
 
         groceryListRepository.deleteByUser(u);
+        priceAlertRepository.deleteByUserId(u.getId());
         userRepository.delete(u);
     }
 }
