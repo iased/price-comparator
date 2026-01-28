@@ -92,8 +92,8 @@ export class DiscountsComponent {
             ...d,
             fromJs: from,
             toJs: to,
-            daysLeft: this.getDaysLeft(to),
-            endsLabel: this.endsInLabel(to),
+            daysLeft: this.getDaysLeft(d.toDate),
+            endsLabel: this.endsInLabel(d.toDate),
             initial: ((d.productName ?? '?').trim()[0] ?? '?').toUpperCase(),
           };
         });
@@ -163,7 +163,7 @@ export class DiscountsComponent {
   endsInLabel(toDate: any): string {
     const days = this.diffDaysCalendar(toDate);
 
-    if (days <= 0) return 'Expiră azi';
+    if (days === 0) return 'Expiră azi';
     if (days === 1) return 'Expiră mâine';
     return `Expiră în ${days} zile`;
   }
