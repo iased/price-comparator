@@ -1,10 +1,9 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BehaviorSubject, combineLatest, map, shareReplay, startWith, switchMap, catchError, of } from 'rxjs';
 import { Discount } from '../../models/discount.model';
-
+import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../services/api.service';
-import { FilterService } from '../../services/filter.service';
 
 type DiscountType = 'Today' | 'This Week';
 
@@ -24,9 +23,10 @@ type DiscountView = Discount & {
   styleUrl: './discounts.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class DiscountsComponent {
   private readonly api = inject(ApiService);
-  private readonly filter = inject(FilterService);
+  private readonly route = inject(ActivatedRoute);
 
   discountTypes: DiscountType[] = ['Today', 'This Week'];
 
@@ -37,20 +37,27 @@ export class DiscountsComponent {
 
   private readonly selectedType$ = new BehaviorSubject<DiscountType>('Today');
 
-  private readonly searchTerm$ = this.filter.search$.pipe(
-    startWith(''),
-    map(term => (term ?? '').toLowerCase().trim()),
+  private readonly queryParams$ = this.route.queryParamMap.pipe(
+    map(pm => {
+      const sidRaw = pm.get('storeId');
+      const storeId = sidRaw ? Number(sidRaw) : null;
+
+      return {
+        storeId: Number.isFinite(storeId as any) ? storeId : null,
+      };
+    }),
     shareReplay({ bufferSize: 1, refCount: true })
   );
 
-  private readonly storeFilter$ = this.filter.storeId$.pipe(
-    startWith<number | null>(null),
-    map(id => {
+  private readonly storeFilter$ = this.queryParams$.pipe(
+    map(x => {
+      const id = x.storeId;
       if (id === 1) return 'lidl';
       if (id === 2) return 'profi';
       if (id === 3) return 'kaufland';
       return null;
     }),
+    startWith<string | null>(null),
     shareReplay({ bufferSize: 1, refCount: true })
   );
 
@@ -72,12 +79,12 @@ export class DiscountsComponent {
     shareReplay({ bufferSize: 1, refCount: true })
   );
 
-  readonly vm$ = combineLatest([this.discountsState$, this.searchTerm$, this.storeFilter$]).pipe(
-    map(([state, searchTerm, storeFilter]) => {
+  readonly vm$ = combineLatest([this.discountsState$, this.storeFilter$]).pipe(
+    map(([state, storeFilter]) => {
       const toJsDate = (s: string) => new Date(`${s}T00:00:00`);
 
       const filtered: DiscountView[] =
-        this.filterAndSort(state.data, searchTerm, storeFilter).map((d): DiscountView => {
+        this.filterAndSort(state.data, storeFilter).map((d): DiscountView => {
           const from = toJsDate(d.fromDate);
           const to = toJsDate(d.toDate);
 
@@ -110,18 +117,11 @@ export class DiscountsComponent {
   trackByDiscount = (_: number, d: DiscountView) =>
     d.id ?? `${d.productName ?? ''}-${d.supermarketName ?? ''}-${d.toDate ?? ''}`;
 
-  private filterAndSort(data: Discount[], searchTerm: string, storeFilter: string | null): Discount[] {
+  private filterAndSort(data: Discount[], storeFilter: string | null): Discount[] {
     let out = [...(data ?? [])];
 
     if (storeFilter) {
       out = out.filter(d => (d.supermarketName ?? '').toLowerCase() === storeFilter);
-    }
-
-    if (searchTerm) {
-      out = out.filter(d => {
-        const hay = `${d.productName ?? ''} ${d.productBrand ?? ''}`.toLowerCase();
-        return hay.includes(searchTerm);
-      });
     }
 
     out.sort((a, b) => {
@@ -142,14 +142,26 @@ export class DiscountsComponent {
     return Number.isFinite(t) ? t : Number.POSITIVE_INFINITY;
   }
 
+  private parseDateOnly(toDate: any): Date {
+    if (typeof toDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(toDate)) {
+      const [y, m, d] = toDate.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+    return new Date(toDate);
+  }
+
+  private diffDaysCalendar(toDate: any): number {
+    const end = this.parseDateOnly(toDate);
+    const today = new Date();
+
+    end.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    return Math.round((end.getTime() - today.getTime()) / 86400000);
+  }
+
   endsInLabel(toDate: any): string {
-    const end = new Date(toDate);
-    const now = new Date();
-
-    end.setHours(23, 59, 59, 999);
-
-    const ms = end.getTime() - now.getTime();
-    const days = Math.ceil(ms / 86400000);
+    const days = this.diffDaysCalendar(toDate);
 
     if (days <= 0) return 'Expiră azi';
     if (days === 1) return 'Expiră mâine';
@@ -157,9 +169,7 @@ export class DiscountsComponent {
   }
 
   getDaysLeft(toDate: any): number {
-    const end = new Date(toDate);
-    const now = new Date();
-    return Math.max(0, Math.ceil((end.getTime() - now.getTime()) / 86400000));
+    return Math.max(0, this.diffDaysCalendar(toDate));
   }
 
 }
