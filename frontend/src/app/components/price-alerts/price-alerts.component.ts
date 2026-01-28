@@ -30,12 +30,12 @@ export class PriceAlertsComponent implements OnInit {
   private q$ = new Subject<string>();
 
   ngOnInit(): void {
-    if (!this.auth.isLoggedIn()) {
-      this.router.navigate(['/login'], { queryParams: { returnUrl: '/price-alerts' } });
-      return;
+    if (this.auth.isLoggedIn()) {
+      this.loadAlerts();
+    } else {
+      this.alerts = [];
+      this.loading = false;
     }
-
-    this.loadAlerts();
 
     this.q$
       .pipe(
