@@ -3,7 +3,7 @@
 
     <div class="top-row">
       <a routerLink="/products" class="brand">
-        🛒 <span>Comparator</span>
+        🛒 <span>Compareo</span>
       </a>
 
       <div class="actions">
@@ -37,7 +37,6 @@
               <a
                 class="drop-item link"
                 routerLink="/account"
-                (click)="closeUserMenu()"
               >
                 Contul meu
               </a>
@@ -58,15 +57,69 @@
           class="search-input"
           type="text"
           placeholder="Caută produse după nume sau brand..."
-          (input)="onSearch(searchBox.value)"
+          [value]="currentQ"
           (keydown.enter)="onSearchEnter(searchBox.value)"
         />
       </div>
 
-      <div class="store-menu" tabindex="0">
-        <button class="store-trigger" type="button" aria-label="Magazin">
-          <span class="store-text">{{ selectedStoreLabel }}</span>
-          <span class="chev" aria-hidden="true"></span>
+      <div class="category-menu" [class.open]="categoryOpen">
+        <button 
+          class="category-trigger" 
+          type="button" 
+          aria-label="Categorie"
+          (click)="toggleCategory($event)">
+            <span class="category-text">{{ selectedCategoryLabel }}</span>
+            <span class="chev" aria-hidden="true"></span>
+        </button>
+
+        <div class="category-dropdown">
+          <button class="drop-item" type="button" (click)="pickCategory(null)">
+            Toate categoriile
+          </button>
+          <button class="drop-item" type="button" (click)="pickCategory('alimente de bază')">
+            Alimente de bază
+          </button>
+            <button class="drop-item" type="button" (click)="pickCategory('băuturi')">
+            Băuturi
+          </button>
+            <button class="drop-item" type="button" (click)="pickCategory('băuturi alcoolice')">
+            Băuturi alcoolice
+          </button>
+          <button class="drop-item" type="button" (click)="pickCategory('dulciuri')">
+            Dulciuri
+          </button>
+          <button class="drop-item" type="button" (click)="pickCategory('igienă')">
+            Igienă
+          </button>
+          <button class="drop-item" type="button" (click)="pickCategory('lactate')">
+            Lactate
+          </button>
+          <button class="drop-item" type="button" (click)="pickCategory('legume și fructe')">
+            Legume și fructe
+          </button>
+          <button class="drop-item" type="button" (click)="pickCategory('panificație')">
+            Panificație
+          </button>
+          <button class="drop-item" type="button" (click)="pickCategory('petshop')">
+            Petshop
+          </button>
+          <button class="drop-item" type="button" (click)="pickCategory('snacks')">
+            Snacks
+          </button>
+          <button class="drop-item" type="button" (click)="pickCategory('sosuri')">
+            Sosuri
+          </button>
+        </div>
+      </div>
+
+      <div class="store-menu" [class.open]="storeOpen">
+        <button 
+          class="store-trigger" 
+          type="button" 
+          aria-label="Magazin"
+          (click)="toggleStore($event)">
+            <span class="store-text">{{ selectedStoreLabel }}</span>
+            <span class="chev" aria-hidden="true"></span>
         </button>
 
         <div class="store-dropdown">

@@ -13,12 +13,31 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query(value = """
         SELECT *
         FROM products p
-        WHERE unaccent(lower(p.name))  LIKE unaccent(lower(concat('%', :q, '%')))
-           OR unaccent(lower(p.brand)) LIKE unaccent(lower(concat('%', :q, '%')))
+        WHERE
+            (
+              unaccent(lower(p.name))  LIKE unaccent(lower(concat('%', :q, '%')))
+              OR unaccent(lower(p.brand)) LIKE unaccent(lower(concat('%', :q, '%')))
+            )
+           AND (:category IS NULL OR unaccent(lower(p.category)) = unaccent(lower(:category)))
         ORDER BY p.name
         LIMIT 10
         """, nativeQuery = true)
-    List<Product> searchDiacriticsInsensitive(@Param("q") String q);
+    List<Product> searchDiacriticsInsensitiveLimited(@Param("q") String q,
+                                                     @Param("category") String category);
+
+    @Query(value = """
+        SELECT *
+        FROM products p
+        WHERE
+            (
+              unaccent(lower(p.name))  LIKE unaccent(lower(concat('%', :q, '%')))
+              OR unaccent(lower(p.brand)) LIKE unaccent(lower(concat('%', :q, '%')))
+            )
+           AND (:category IS NULL OR unaccent(lower(p.category)) = unaccent(lower(:category)))
+        ORDER BY p.name
+        """, nativeQuery = true)
+    List<Product> searchDiacriticsInsensitive(@Param("q") String q,
+                                              @Param("category") String category);
 
     @Query(value = """
         SELECT DISTINCT p.*
@@ -29,9 +48,12 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             unaccent(lower(p.name))  LIKE unaccent(lower(concat('%', :q, '%')))
             OR unaccent(lower(p.brand)) LIKE unaccent(lower(concat('%', :q, '%')))
           )
+          AND (:category IS NULL OR unaccent(lower(p.category)) = unaccent(lower(:category)))
         ORDER BY p.name
         """, nativeQuery = true)
-    List<Product> searchAllDiacriticsInsensitiveInStore(@Param("q") String q, @Param("storeId") Long storeId);
+    List<Product> searchAllDiacriticsInsensitiveInStore(@Param("q") String q,
+                                                        @Param("storeId") Long storeId,
+                                                        @Param("category") String category);
 
     @Query(value = """
         SELECT DISTINCT p.*

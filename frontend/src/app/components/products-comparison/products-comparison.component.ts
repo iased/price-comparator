@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { ProductComparison, Offer } from '../../models/product-comparison.model';
 import { ApiService } from '../../services/api.service';
-import { FilterService } from '../../services/filter.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../auth/auth.service';
 
@@ -22,39 +21,26 @@ export class ProductsComparisonComponent {
 
   private q = '';
   private storeId: number | null = null;
-  private searchTimer: any;
-  private initialized = false;
+  private category: string | null = null;
 
   constructor(
     private api: ApiService,
-    private filter: FilterService,
     public auth: AuthService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    this.filter.search$.subscribe(term => {
-      if (!this.initialized) return;
-      this.q = (term ?? '').trim();
-      clearTimeout(this.searchTimer);
-      this.searchTimer = setTimeout(() => this.loadProducts(), 300);
-    });
-
-    this.filter.storeId$.subscribe(id => {
-      if (!this.initialized) return;
-      this.storeId = id;
-      this.loadProducts();
-    });
-
     this.route.queryParamMap.subscribe(pm => {
       const q = (pm.get('q') ?? '').trim();
       const storeIdParam = pm.get('storeId');
       const storeId = storeIdParam != null ? Number(storeIdParam) : null;
 
+      const category = (pm.get('category') ?? '').trim();
+      this.category = category.length ? category : null;
+
       this.q = q;
       this.storeId = Number.isFinite(storeId as any) ? storeId : null;
-      this.initialized = true;
 
       this.loadProducts();
     });
@@ -67,7 +53,7 @@ export class ProductsComparisonComponent {
     const q = this.q.length >= 2 ? this.q : '';
     const storeId = this.storeId;
 
-    this.api.getProductComparisons(q, storeId).subscribe({
+    this.api.getProductComparisons(q, storeId, this.category).subscribe({
       next: (products) => {
         this.products = products;
         this.loading = false;
@@ -78,10 +64,6 @@ export class ProductsComparisonComponent {
         this.loading = false;
       },
     });
-  }
-
-  get filteredProducts() {
-    return this.products;
   }
 
   addToList(productId: number) {
@@ -154,7 +136,7 @@ export class ProductsComparisonComponent {
     if (u === 'kg' || u === 'l') return quantity;
     if (u === 'buc') return quantity;
 
-    return 1;
+    return quantity;
   }
 
   getDisplayPPU(product: ProductComparison, offer: Offer): number | null {

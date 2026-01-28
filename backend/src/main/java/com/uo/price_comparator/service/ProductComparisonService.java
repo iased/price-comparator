@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.Normalizer;
+import java.util.Locale;
+import java.util.regex.Pattern;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,6 +22,8 @@ public class ProductComparisonService {
     private final ProductPriceRepository productPriceRepository;
     private final DiscountService discountService;
     private final ProductRepository productRepository;
+
+    private static final Pattern DIACRITICS = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 
     public ProductComparisonService(ProductPriceRepository productPriceRepository,
                                     DiscountService discountService,
@@ -44,7 +49,7 @@ public class ProductComparisonService {
         return result;
     }
 
-    public List<ProductComparisonDto> getComparison(String q, Long storeId) {
+    public List<ProductComparisonDto> getComparison(String q, Long storeId, String category) {
         LocalDate today = LocalDate.now();
 
         String query = (q == null) ? null : q.trim();
@@ -54,9 +59,9 @@ public class ProductComparisonService {
 
         if (hasQuery) {
             if (storeId == null) {
-                products = productRepository.searchDiacriticsInsensitive(query);
+                products = productRepository.searchDiacriticsInsensitive(query, category);
             } else {
-                products = productRepository.searchAllDiacriticsInsensitiveInStore(query, storeId);
+                products = productRepository.searchAllDiacriticsInsensitiveInStore(query, storeId, category);
             }
         } else {
             if (storeId == null) {
@@ -64,6 +69,15 @@ public class ProductComparisonService {
             } else {
                 products = productRepository.findAllAvailableInStore(storeId);
             }
+        }
+
+        String cat = (category == null || category.isBlank()) ? null : category.trim();
+
+        if (cat != null) {
+            String ncat = norm(cat);
+            products = products.stream()
+                    .filter(p -> p.getCategory() != null && norm(p.getCategory()).equals(ncat))
+                    .toList();
         }
 
         if (products.isEmpty()) return List.of();
@@ -155,5 +169,12 @@ public class ProductComparisonService {
                 .ifPresent(dto::setBestOffer);
 
         return dto;
+    }
+
+    private static String norm(String s) {
+        if (s == null) return null;
+        String x = Normalizer.normalize(s.trim(), Normalizer.Form.NFD);
+        x = DIACRITICS.matcher(x).replaceAll("");
+        return x.toLowerCase(Locale.ROOT);
     }
 }

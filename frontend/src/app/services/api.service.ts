@@ -24,13 +24,16 @@ export class ApiService {
     return this.http.get<any[]>(`${this.base}/discounts/this-week`);
   }
 
-  getProductComparisons(q?: string, storeId?: number | null): Observable<ProductComparison[]> {
+  getProductComparisons(q?: string, storeId?: number | null, category?: string | null): Observable<ProductComparison[]> {
     const params: any = {};
 
     const qq = (q ?? '').trim();
     if (qq.length >= 2) params.q = qq;
 
     if (storeId != null) params.storeId = storeId;
+
+    const cat = (category ?? '').trim();
+    if (cat.length > 0) params.category = cat;
 
     return this.http.get<ProductComparison[]>(`${this.base}/products/comparison`, { params });
   }
