@@ -25,6 +25,8 @@ export class AccountComponent implements OnInit {
   showDeleteModal = false;
   deletePassword = '';
 
+  deleteError = '';
+
   constructor(
     private accountService: AccountService,
     private auth: AuthService,
@@ -86,6 +88,7 @@ export class AccountComponent implements OnInit {
   openDeleteModal(): void {
     this.showDeleteModal = true;
     this.deletePassword = '';
+    this.deleteError = '';
     this.error = '';
     this.success = '';
   }
@@ -93,17 +96,19 @@ export class AccountComponent implements OnInit {
   cancelDelete(): void {
     this.showDeleteModal = false;
     this.deletePassword = '';
+    this.deleteError = '';
     this.deleting = false;
   }
 
   confirmDelete(): void {
     const pw = (this.deletePassword ?? '').trim();
     if (!pw) {
-      this.error = 'Introdu parola pentru confirmare.';
+      this.deleteError = 'Introdu parola pentru confirmare.';
       return;
     }
 
     this.deleting = true;
+    this.deleteError = '';
     this.error = '';
     this.success = '';
 
@@ -113,7 +118,11 @@ export class AccountComponent implements OnInit {
         this.router.navigateByUrl('/products', { replaceUrl: true });
       },
       error: (e) => {
-        this.error = e?.error?.message ?? 'Nu s-a putut șterge contul.';
+        this.deleteError =
+          e?.error?.message ||
+          e?.error?.detail ||
+          (typeof e?.error === 'string' ? e.error : null) ||
+          'Nu s-a putut șterge contul.';
         this.deleting = false;
       }
     });

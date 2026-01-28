@@ -73,6 +73,10 @@
               {{ deleting ? 'Se șterge...' : 'Șterge definitiv' }}
             </button>
           </div>
+
+          <div class="state error" *ngIf="deleteError">
+            {{ deleteError }}
+          </div>
         </div>
       </div>
     </div>

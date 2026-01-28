@@ -5,10 +5,11 @@ import com.uo.price_comparator.dto.UpdateAccountRequest;
 import com.uo.price_comparator.repository.GroceryListRepository;
 import com.uo.price_comparator.user.User;
 import com.uo.price_comparator.user.UserRepository;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class AccountService {
@@ -53,11 +54,11 @@ public class AccountService {
     public void deleteAccount(String email, String password) {
         User u = getCurrentUser(email);
         if (password == null || password.isBlank()) {
-            throw new IllegalArgumentException("Parola este obligatorie.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Parola este obligatorie.");
         }
 
         if (!passwordEncoder.matches(password, u.getPasswordHash())) {
-            throw new BadCredentialsException("Parola este incorectă.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Parola este incorectă.");
         }
 
         groceryListRepository.deleteByUser(u);

@@ -47,6 +47,8 @@ export class LoginComponent {
       error: (e) => {
         this.error =
           e?.error?.message ||
+          e?.error?.detail ||
+          (typeof e?.error === 'string' ? e.error : null) ||
           'Nu s-a putut face autentificarea. Verifică datele și încearcă din nou.';
         this.loading = false;
       },
